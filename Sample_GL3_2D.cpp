@@ -124,8 +124,8 @@ struct VAO* create3DObject (GLenum primitive_mode, int numVertices, const GLfloa
     glGenBuffers (1, &(vao->VertexBuffer)); // VBO - vertices
     glGenBuffers (1, &(vao->ColorBuffer));  // VBO - colors
 
-    glBindVertexArray (vao->VertexArrayID); // Bind the VAO 
-    glBindBuffer (GL_ARRAY_BUFFER, vao->VertexBuffer); // Bind the VBO vertices 
+    glBindVertexArray (vao->VertexArrayID); // Bind the VAO
+    glBindBuffer (GL_ARRAY_BUFFER, vao->VertexBuffer); // Bind the VBO vertices
     glBufferData (GL_ARRAY_BUFFER, 3*numVertices*sizeof(GLfloat), vertex_buffer_data, GL_STATIC_DRAW); // Copy the vertices into VBO
     glVertexAttribPointer(
                           0,                  // attribute 0. Vertices
@@ -136,7 +136,7 @@ struct VAO* create3DObject (GLenum primitive_mode, int numVertices, const GLfloa
                           (void*)0            // array buffer offset
                           );
 
-    glBindBuffer (GL_ARRAY_BUFFER, vao->ColorBuffer); // Bind the VBO colors 
+    glBindBuffer (GL_ARRAY_BUFFER, vao->ColorBuffer); // Bind the VBO colors
     glBufferData (GL_ARRAY_BUFFER, 3*numVertices*sizeof(GLfloat), color_buffer_data, GL_STATIC_DRAW);  // Copy the vertex colors
     glVertexAttribPointer(
                           1,                  // attribute 1. Color
@@ -192,8 +192,10 @@ void draw3DObject (struct VAO* vao)
 
 float triangle_rot_dir = 1;
 float rectangle_rot_dir = 1;
+float canon_rot_dir = 1;
 bool triangle_rot_status = true;
 bool rectangle_rot_status = true;
+bool canon_rot_status = true;
 
 /* Executed when a regular key is pressed */
 void keyboardDown (unsigned char key, int x, int y)
@@ -283,28 +285,102 @@ void reshapeWindow (int width, int height)
     Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
 }
 
-VAO *triangle, *rectangle;
+VAO *triangle,*canon, *rectangle;
 
+int i=0;
+GLfloat vertex_buffer_data [500] ;
+GLfloat color_buffer_data [500] ;
+void add(GLdouble x,GLdouble y)
+{
+    vertex_buffer_data[i]=x;
+    color_buffer_data[i++]=0;
+    vertex_buffer_data[i]=y;
+    color_buffer_data[i++]=0;
+    vertex_buffer_data[i]=0;
+    color_buffer_data[i++]=0;
+
+}
 // Creates the triangle object used in this sample code
-void createTriangle ()
+void createcircle (GLdouble centrex,GLdouble centrey)
 {
   /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
 
-  /* Define vertex array as used in glBegin (GL_TRIANGLES) */
-  static const GLfloat vertex_buffer_data [] = {
-    0, 1,0, // vertex 0
-    -1,-1,0, // vertex 1
-    1,-1,0, // vertex 2
-  };
+    const double TWO_PI = 6.2831853;
+    GLdouble hexTheta,x,y,radius=.30,previousx,previousy;
+    // adds point to the vertex_buffer array
 
-  static const GLfloat color_buffer_data [] = {
-    1,0,0, // color 0
-    0,1,0, // color 1
-    0,0,1, // color 2
-  };
+    hexTheta = TWO_PI * 0/40;
+    x = centrex + radius * cos(hexTheta);
+    y = centrey + radius * sin(hexTheta);
+    add(centrex,centrey);
+    add(x,y);
+    hexTheta = TWO_PI * 1/20;
+    x = centrex + radius * cos(hexTheta);
+    y = centrey + radius * sin(hexTheta);
+    add(x,y);
+    previousy = y;
+    previousx = x;
+
+    int j;
+    // building many triangles to form one circle
+    for(j=2;j<=20;j++)
+    {
+        hexTheta = TWO_PI * j/20;
+        // defining the new vertices
+        x = centrex + radius * cos(hexTheta);
+        y = centrey + radius * sin(hexTheta);
+        // assigining vertices to new triangle
+        add(centrex,centrey);
+        add(previousx,previousy);
+        add(x,y);
+        previousy = y;
+        previousx = x;
+    }
 
   // create3DObject creates and returns a handle to a VAO that can be used later
-  triangle = create3DObject(GL_TRIANGLES, 3, vertex_buffer_data, color_buffer_data, GL_LINE);
+  triangle = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
+  i=0;
+}
+
+void createcanon (GLdouble centrex,GLdouble centrey)
+{
+  /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
+
+    const double TWO_PI = 6.2831853;
+    GLdouble hexTheta,x,y,radius=.50,previousx,previousy;
+    // adds point to the vertex_buffer array
+
+    hexTheta = TWO_PI * 0/20;
+    x = centrex + radius * cos(hexTheta);
+    y = centrey + radius * sin(hexTheta);
+    add(-5.5,-3);
+    add(x,y);
+    hexTheta = TWO_PI * 1/20;
+    x = centrex + radius * cos(hexTheta);
+    y = centrey + radius * sin(hexTheta);
+    add(x,y);
+    previousy = y;
+    previousx = x;
+
+    int j;
+    // building many triangles to form one circle
+    for(j=2;j<=20;j++)
+    {
+        hexTheta = TWO_PI * j/20;
+        // defining the new vertices
+        x = centrex + radius * cos(hexTheta);
+        y = centrey + radius * sin(hexTheta);
+        // assigining vertices to new triangle
+        add(-5.5,-3);
+        add(previousx,previousy);
+        add(x,y);
+        previousy = y;
+        previousx = x;
+    }
+
+  // create3DObject creates and returns a handle to a VAO that can be used later
+  canon = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
+  i=0;
 }
 
 void createRectangle ()
@@ -338,6 +414,7 @@ void createRectangle ()
 float camera_rotation_angle = 90;
 float rectangle_rotation = 0;
 float triangle_rotation = 0;
+float canon_rotation = 0;
 
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
@@ -376,10 +453,10 @@ void draw ()
 
   /* Render your scene */
 
-  glm::mat4 translateTriangle = glm::translate (glm::vec3(-2.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 translateTriangle = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
   glm::mat4 rotateTriangle = glm::rotate((float)(triangle_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0)
-  glm::mat4 triangleTransform = translateTriangle * rotateTriangle;
-  Matrices.model *= triangleTransform; 
+  glm::mat4 triangleTransform = translateTriangle ;
+  Matrices.model *= translateTriangle;
   MVP = VP * Matrices.model; // MVP = p * V * M
 
   //  Don't change unless you are sure!!
@@ -392,12 +469,23 @@ void draw ()
 
   glm::mat4 translateRectangle = glm::translate (glm::vec3(2, 0, 0));        // glTranslatef
   glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
-  Matrices.model *= (translateRectangle * rotateRectangle);
+  Matrices.model *= (translateRectangle );
   MVP = VP * Matrices.model;
   glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(rectangle);
+
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translatecanon = glm::translate (glm::vec3(2, 0, 0));        // glTranslatef
+  glm::mat4 rotatecanon = glm::rotate((float)(canon_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translatecanon );
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(canon);
 
   // Swap the frame buffers
   glutSwapBuffers ();
@@ -408,6 +496,7 @@ void draw ()
   //camera_rotation_angle++; // Simulating camera rotation
   triangle_rotation = triangle_rotation + increments*triangle_rot_dir*triangle_rot_status;
   rectangle_rotation = rectangle_rotation + increments*rectangle_rot_dir*rectangle_rot_status;
+  canon_rotation = canon_rotation + increments*canon_rot_dir*canon_rot_status;
 }
 
 /* Executed when the program is idle (no I/O activity) */
@@ -454,7 +543,7 @@ void initGLUT (int& argc, char** argv, int width, int height)
 
     glutDisplayFunc (draw); // function to draw when active
     glutIdleFunc (idle); // function to draw when idle (no I/O activity)
-    
+
     glutIgnoreKeyRepeat (true); // Ignore keys held down
 }
 
@@ -489,8 +578,9 @@ void addGLUTMenus ()
 void initGL (int width, int height)
 {
 	// Create the models
-	createTriangle (); // Generate the VAO, VBOs, vertices data & copy into the array buffer
-
+	createcircle (-3.5,-3); // Generate the VAO, VBOs, vertices data & copy into the array buffer
+	createRectangle ();
+    createcanon (-4,-3);
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
@@ -506,7 +596,6 @@ void initGL (int width, int height)
 	glEnable (GL_DEPTH_TEST);
 	glDepthFunc (GL_LEQUAL);
 
-	createRectangle ();
 
 	cout << "VENDOR: " << glGetString(GL_VENDOR) << endl;
 	cout << "RENDERER: " << glGetString(GL_RENDERER) << endl;
