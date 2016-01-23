@@ -234,6 +234,7 @@ double ux =0 ;
 double uy =0 ;
 double finalx =0 ;
 double finaly =0 ;
+double direction =9 ;
 
 /* Executed when a regular key is pressed */
 void keyboardDown (unsigned char key, int x, int y)
@@ -281,6 +282,8 @@ void keyboardUp (unsigned char key, int x, int y)
             power = power_meter ;
             collisionx =0 ;
             collisiony =0 ;
+            ux = power*cos(theta);
+            uy = power*(sin(theta));
             o=0;
         }
         break;
@@ -471,6 +474,69 @@ void createRectangle ()
 
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
+
+void accelaration_func(){
+
+    accelarationx = 0;
+    accelarationy = gravity ;
+  //   need to include code of water and ground friction
+
+}
+
+void move_func(){
+      if(shoot == false)
+      return ;
+
+      newx = ux*o - accelarationx*o*o*2;
+      newy = uy*o - accelarationy*o*o/2;
+
+}
+
+void collision_func(){
+
+  //   condition of stopping the ball
+    if(ux < 0.09){
+        ux=0;
+    }
+    else if(uy < 0.09){
+        uy =0 ;
+    }
+    // REVIEW
+  //   condition of collision with ground
+    if((collisiony + newy ) <= 0.05  )
+    {
+        if(uy < 0){
+            uy -= gravity*o;
+            uy *= -1 ;
+            collisiony = 0 ;
+            newy =0.05 ;
+        }
+        ux /=1.5;
+        uy /=1.5 ;
+        collisionx +=newx;
+        collisiony += newy;
+        // newy = 0.005f;
+        // newx = 0 ;
+        o=0;
+    }
+    if((collisiony + newy ) >= 4.9 && (collisiony + newy ) <= 5.25  && (collisionx + newx -3) >= -1.75 && (collisionx + newx -3) <= -0.45) {
+        uy -= gravity*o;
+        uy /=4 ;
+        uy *= -1 ;
+        collisiony += newy - 0.005f ;
+        collisionx += newx ;
+        // direction = -9 ;
+        // newy = -1.5f;
+        o=0;
+
+    }
+  //   condition of initalising the shooting control
+      if(ux<=0.09 && uy<=0.09)
+      {
+          shoot=false;
+      }
+}
+
 void draw ()
 {
   // clear the color and depth in the frame buffer
@@ -537,41 +603,40 @@ void draw ()
 
     // bird3
 
-  accelarationx = 0;
-  accelarationy = gravity ;
-  ux = power*cos(theta);
-  uy = power*(sin(theta));
   Matrices.model = glm::mat4(1.0f);
 
-  if (shoot==true && o==0)
-  {
-      flying_time = (2*uy)/10;
-    //   shoot =false ; // initialise shoot
-    //   o=0;
-  }
+  // if (shoot==true && o==0)
+  // {
+  //     flying_time = (2*uy)/10;
+  //   //   shoot =false ; // initialise shoot
+  //   //   o=0;
+  // }
 
-  if(o<=flying_time)
-  {
-      newx = ux*o - accelarationx*o*o*2;
-      newy = uy*o - accelarationy*o*o/2;
-  }
-  else if(newy>0.0009)
-  {
-      flying_time /= 2 ;
-      power /= 2 ;
-      o=0;
-      collisionx += newx ;
-    //   collisiony += newy ;
-  }
-  else
-  {
-      newx = 0;
-      newy = 0 ;
-      shoot = false ;
-      power = 0;
-      o=0;
-  }
   o += 0.009;
+  accelaration_func();
+  move_func();
+  collision_func();
+
+
+  // if(o<=flying_time)
+  // {
+  // }
+  // else if(newy>0.0009)
+  // {
+  //     flying_time /= 2 ;
+  //     power /= 2 ;
+  //     o=0;
+  //     collisionx += newx ;
+  //   //   collisiony += newy ;
+  // }
+  // else
+  // {
+  //     newx = 0;
+  //     newy = 0 ;
+  //     shoot = false ;
+  //     power = 0;
+  //     o=0;
+  // }
 
   glm::mat4 translatebird3 = glm::translate (glm::vec3(-3.00f + collisionx+newx , -3.00f + collisiony+newy , 0.0f)); // glTranslatef
   glm::mat4 rotatebird3 = glm::rotate((float)(bird3_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
@@ -588,7 +653,7 @@ void draw ()
   // rectangle
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translateRectangle = glm::translate (glm::vec3(-2, 2, 0));        // glTranslatef
+  glm::mat4 translateRectangle = glm::translate (glm::vec3(-1.7, 2, 0));        // glTranslatef
   glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
   Matrices.model *= (translateRectangle * rotateRectangle);
   MVP = VP * Matrices.model;
@@ -622,6 +687,8 @@ void draw ()
   rectangle_rotation = rectangle_rotation + increments*rectangle_rot_dir*rectangle_rot_status;
   canon_rotation = canon_rotation + (increments/5)*canon_rot_dir*canon_rot_status*-1;
 }
+
+
 
 /* Executed when the program is idle (no I/O activity) */
 void idle () {
