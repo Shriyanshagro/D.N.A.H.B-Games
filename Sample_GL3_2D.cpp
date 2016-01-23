@@ -204,17 +204,29 @@ float bird1_rot_dir = 1;
 float bird2_rot_dir = 1;
 float bird3_rot_dir = 1;
 float rectangle_rot_dir = 1;
+float rectangle2_rot_dir = 1;
+float rectangle3_rot_dir = 1;
+float rectangle4_rot_dir = 1;
+float rectangle5_rot_dir = 1;
 float canon_rot_dir = 1;
 bool bird1_rot_status = false;
 bool bird2_rot_status = false;
 bool bird3_rot_status = false;
 bool rectangle_rot_status = false;
+bool rectangle2_rot_status = false;
+bool rectangle3_rot_status = false;
+bool rectangle4_rot_status = false;
+bool rectangle5_rot_status = false;
 bool canon_rot_status = false;
 float rectangle_rotation = 0;
+float rectangle2_rotation = 0;
+float rectangle3_rotation = 0;
+float rectangle4_rotation = 0;
+float rectangle5_rotation = 0;
 float bird1_rotation = 0;
 float bird2_rotation = 0;
 float bird3_rotation = 0;
-float canon_rotation = 0;
+float canon_rotation = 20;
 float power = 8 ;
 float power_meter = 8 ;
 bool shoot = false ;
@@ -234,6 +246,7 @@ double ux =0 ;
 double uy =0 ;
 double finalx =0 ;
 double finaly =0 ;
+double direction =9 ;
 
 /* Executed when a regular key is pressed */
 void keyboardDown (unsigned char key, int x, int y)
@@ -281,6 +294,8 @@ void keyboardUp (unsigned char key, int x, int y)
             power = power_meter ;
             collisionx =0 ;
             collisiony =0 ;
+            ux = power*cos(theta);
+            uy = power*(sin(theta));
             o=0;
         }
         break;
@@ -344,7 +359,7 @@ void reshapeWindow (int width, int height)
     Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
 }
 
-VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4;
+VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5;
 
 int i=0;
 GLfloat vertex_buffer_data [500] ;
@@ -456,21 +471,133 @@ void createRectangle ()
   };
 
   static const GLfloat color_buffer_data [] = {
-    1,0,0, // color 1
-    0,0,1, // color 2
-    0,1,0, // color 3
-
-    0,1,0, // color 3
-    0.3,0.3,0.3, // color 4
-    1,0,0  // color 1
+    0.847059,0.847059,0.74902, // color 1
+    0.847059,0.847059,0.74902, // color 1
+    0.847059,0.847059,0.74902, // color 1
+    0.847059,0.847059,0.74902, // color 1
+    0.847059,0.847059,0.74902, // color 1
+    0.847059,0.847059,0.74902, // color 1
   };
 
   // create3DObject creates and returns a handle to a VAO that can be used later
-  rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_LINE);
+  rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+  rectangle2 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+  rectangle3 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+}
+
+void water_rectangle(){
+    const GLfloat vertex_buffer_data [] = {
+        0,0,0,
+        0,0.2f,0,
+        1.2f,0,0,
+        1.2f,0,0,
+        1.2f,0.2f,0,
+        0,0.2f,0,
+    };
+
+    static const GLfloat color_buffer_data [] = {
+      0.372549,0.623529,0.623529, // color 1
+      0.372549,0.623529,0.623529, // color 1
+      0.372549,0.623529,0.623529, // color 1
+      0.137255,0.556863,0.137255, // color 2
+      0.137255,0.556863,0.137255, // color 2
+      0.137255,0.556863,0.137255, // color 2
+    };
+
+
+
+  rectangle4 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+}
+
+void ground_rectangle(){
+    const GLfloat vertex_buffer_data [] = {
+      -5,-1,0,
+      -5,0.2f,0,
+      7,-1,0,
+      7,-1,0,
+      7,0.2f,0,
+      -5,0.2f,0,
+    };
+
+    static const GLfloat color_buffer_data [] = {
+      0.372549,0.623529,0.623529, // color 1
+      0.372549,0.623529,0.623529, // color 1
+      0.372549,0.623529,0.623529, // color 1
+      0.22,0.69,0.87, // color 2
+      0.22,0.69,0.87, // color 2
+      0.22,0.69,0.87, // color 2
+      };
+
+
+
+  rectangle5 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
 }
 
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
+
+void accelaration_func(){
+
+    accelarationx = 0;
+    accelarationy = gravity ;
+  //   need to include code of water and ground friction
+
+}
+
+void move_func(){
+      if(shoot == false)
+      return ;
+
+      newx = ux*o - accelarationx*o*o*2;
+      newy = uy*o - accelarationy*o*o/2;
+
+}
+
+void collision_func(){
+
+  //   condition of stopping the ball
+    if(ux < 0.09){
+        ux=0;
+    }
+    else if(uy < 0.09){
+        uy =0 ;
+    }
+    // REVIEW
+  //   condition of collision with ground
+    if((collisiony + newy ) <= 0.05  )
+    {
+        if(uy < 0){
+            uy -= gravity*o;
+            uy *= -1 ;
+            collisiony = 0 ;
+            newy =0.05 ;
+        }
+        ux /=1.5;
+        uy /=1.5 ;
+        collisionx +=newx;
+        collisiony += newy;
+        // newy = 0.005f;
+        // newx = 0 ;
+        o=0;
+    }
+    if((collisiony + newy ) >= 4.9 && (collisiony + newy ) <= 5.25  && (collisionx + newx -3) >= -1.75 && (collisionx + newx -3) <= -0.45) {
+        uy -= gravity*o;
+        uy /=4 ;
+        uy *= -1 ;
+        collisiony += newy - 0.005f ;
+        collisionx += newx ;
+        // direction = -9 ;
+        // newy = -1.5f;
+        o=0;
+
+    }
+  //   condition of initalising the shooting control
+      if(ux<=0.09 && uy<=0.09)
+      {
+          shoot=false;
+      }
+}
+
 void draw ()
 {
   // clear the color and depth in the frame buffer
@@ -537,44 +664,16 @@ void draw ()
 
     // bird3
 
-  accelarationx = 0;
-  accelarationy = gravity ;
-  ux = power*cos(theta);
-  uy = power*(sin(theta));
   Matrices.model = glm::mat4(1.0f);
 
-  if (shoot==true && o==0)
-  {
-      flying_time = (2*uy)/10;
-    //   shoot =false ; // initialise shoot
-    //   o=0;
-  }
 
-  if(o<=flying_time)
-  {
-      newx = ux*o - accelarationx*o*o*2;
-      newy = uy*o - accelarationy*o*o/2;
-  }
-  else if(newy>0.0009)
-  {
-      flying_time /= 2 ;
-      power /= 2 ;
-      o=0;
-      collisionx += newx ;
-    //   collisiony += newy ;
-  }
-  else
-  {
-      newx = 0;
-      newy = 0 ;
-      shoot = false ;
-      power = 0;
-      o=0;
-  }
   o += 0.009;
+  accelaration_func();
+  move_func();
+  collision_func();
 
   glm::mat4 translatebird3 = glm::translate (glm::vec3(-3.00f + collisionx+newx , -3.00f + collisiony+newy , 0.0f)); // glTranslatef
-  glm::mat4 rotatebird3 = glm::rotate((float)(bird3_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 rotatebird3 = glm::rotate((float)((bird3_rotation+20)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 bird3Transform = translatebird3 ;
   Matrices.model *= translatebird3 * rotatebird3;
   MVP = VP * Matrices.model; // MVP = p * V * M
@@ -588,7 +687,7 @@ void draw ()
   // rectangle
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translateRectangle = glm::translate (glm::vec3(-2, 2, 0));        // glTranslatef
+  glm::mat4 translateRectangle = glm::translate (glm::vec3(-1.7, 2, 0));        // glTranslatef
   glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
   Matrices.model *= (translateRectangle * rotateRectangle);
   MVP = VP * Matrices.model;
@@ -596,6 +695,55 @@ void draw ()
 
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(rectangle);
+
+  // rectangle 2
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translateRectangle2 = glm::translate (glm::vec3(2.4, 2, 0));        // glTranslatef
+  glm::mat4 rotateRectangle2 = glm::rotate((float)(rectangle2_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle2 * rotateRectangle2);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle2);
+
+  // rectangle3
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translateRectangle3 = glm::translate (glm::vec3(0.7, -3.2, 0));        // glTranslatef
+  glm::mat4 rotateRectangle3 = glm::rotate((float)(rectangle3_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle3 * rotateRectangle3);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle3);
+
+  // rectangle4
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translateRectangle4 = glm::translate (glm::vec3(2, 0, 0));        // glTranslatef
+  glm::mat4 rotateRectangle4 = glm::rotate((float)(rectangle4_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle4 * rotateRectangle4);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle4);
+  // rectangle5
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translateRectangle5 = glm::translate (glm::vec3(-1.7, -3.4, 0));        // glTranslatef
+  glm::mat4 rotateRectangle5 = glm::rotate((float)(rectangle5_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle5 * rotateRectangle5);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle5);
+
+
 
   // canon
   Matrices.model = glm::mat4(1.0f);
@@ -620,8 +768,14 @@ void draw ()
   bird2_rotation = bird2_rotation + increments*bird2_rot_dir*bird2_rot_status;
   bird3_rotation = bird3_rotation + increments*bird3_rot_dir*bird3_rot_status;
   rectangle_rotation = rectangle_rotation + increments*rectangle_rot_dir*rectangle_rot_status;
+  rectangle2_rotation = rectangle2_rotation + increments*rectangle2_rot_dir*rectangle2_rot_status;
+  rectangle3_rotation = rectangle3_rotation + increments*rectangle3_rot_dir*rectangle3_rot_status;
+  rectangle4_rotation = rectangle4_rotation + increments*rectangle4_rot_dir*rectangle4_rot_status;
+  rectangle5_rotation = rectangle5_rotation + increments*rectangle5_rot_dir*rectangle5_rot_status;
   canon_rotation = canon_rotation + (increments/5)*canon_rot_dir*canon_rot_status*-1;
 }
+
+
 
 /* Executed when the program is idle (no I/O activity) */
 void idle () {
@@ -643,7 +797,7 @@ void initGLUT (int& argc, char** argv, int width, int height)
     glutInitContextVersion (3, 3); // Init GL 3.3
     glutInitContextFlags (GLUT_CORE_PROFILE); // Use Core profile - older functions are deprecated
     glutInitWindowSize (width, height);
-    glutCreateWindow ("Sample OpenGL3.3 Application");
+    glutCreateWindow ("D.N.A.H.B Games");
 
     // Initialize GLEW, Needed in Core profile
     glewExperimental = GL_TRUE;
@@ -706,6 +860,8 @@ void initGL (int width, int height )
 	create_angry_bird (0,0); // Generate the VAO, VBOs, vertices data & copy into the array buffer
 	createRectangle ();
     createcanon (2,0); // pointed at -3   .5,-3
+    ground_rectangle();
+    water_rectangle();
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
