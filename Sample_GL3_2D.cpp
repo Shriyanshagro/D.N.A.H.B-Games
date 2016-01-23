@@ -199,10 +199,14 @@ void draw3DObject (struct VAO* vao)
  * Customizable functions *
  **************************/
 
-float triangle_rot_dir = 1;
+float bird1_rot_dir = 1;
+float bird2_rot_dir = 1;
+float bird3_rot_dir = 1;
 float rectangle_rot_dir = 1;
 float canon_rot_dir = 1;
-bool triangle_rot_status = true;
+bool bird1_rot_status = false;
+bool bird2_rot_status = false;
+bool bird3_rot_status = false;
 bool rectangle_rot_status = true;
 bool canon_rot_status = true;
 float canon_rotate_angle = 0 ;
@@ -228,10 +232,10 @@ void keyboardUp (unsigned char key, int x, int y)
         case 'C':
             rectangle_rot_status = !rectangle_rot_status;
             break;
-        case 'p':
-        case 'P':
-            triangle_rot_status = !triangle_rot_status;
-            break;
+        // case 'p':
+        // case 'P':
+        //     triangle_rot_status = !triangle_rot_status;
+        //     break;
         case 'w':
         case 'W':
             canon_rot_status = ! canon_rot_status;
@@ -265,10 +269,10 @@ void keyboardSpecialUp (int key, int x, int y)
 void mouseClick (int button, int state, int x, int y)
 {
     switch (button) {
-        case GLUT_LEFT_BUTTON:
-            if (state == GLUT_UP)
-                triangle_rot_dir *= -1;
-            break;
+    //     case GLUT_LEFT_BUTTON:
+    //         if (state == GLUT_UP)
+    //             triangle_rot_dir *= -1;
+    //         break;
         case GLUT_RIGHT_BUTTON:
             if (state == GLUT_UP) {
                 rectangle_rot_dir *= -1;
@@ -304,7 +308,7 @@ void reshapeWindow (int width, int height)
     Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
 }
 
-VAO *triangle,*canon, *rectangle;
+VAO *bird1,*bird2,*bird3,*canon, *rectangle;
 
 int i=0;
 GLfloat vertex_buffer_data [500] ;
@@ -357,7 +361,9 @@ void create_angry_bird (GLdouble centrex,GLdouble centrey)
     }
 
   // create3DObject creates and returns a handle to a VAO that can be used later
-  triangle = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
+  bird1 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
+  bird2 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
+  bird3 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
   i=0;
 }
 
@@ -431,7 +437,9 @@ void createRectangle ()
 
 float camera_rotation_angle = 90;
 float rectangle_rotation = 0;
-float triangle_rotation = 0;
+float bird1_rotation = 0;
+float bird2_rotation = 0;
+float bird3_rotation = 0;
 float canon_rotation = 0;
 
 /* Render the scene with openGL */
@@ -467,22 +475,56 @@ void draw ()
   glm::mat4 MVP;	// MVP = Projection * View * Model
 
   // Load identity to model matrix
-  Matrices.model = glm::mat4(1.0f);
-
   /* Render your scene */
 
-  glm::mat4 translateTriangle = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
-  glm::mat4 rotateTriangle = glm::rotate((float)(triangle_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-  glm::mat4 triangleTransform = translateTriangle ;
-  Matrices.model *= translateTriangle * rotateTriangle;
+  // bird1
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translatebird1 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 rotatebird1 = glm::rotate((float)(bird1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 bird1Transform = translatebird1 ;
+  Matrices.model *= translatebird1 * rotatebird1;
   MVP = VP * Matrices.model; // MVP = p * V * M
 
   //  Don't change unless you are sure!!
   glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
   // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(triangle);
+  draw3DObject(bird1);
 
+  // bird2
+  Matrices.model = glm::mat4(1.0f);
+
+
+  glm::mat4 translatebird2 = glm::translate (glm::vec3(1.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 rotatebird2 = glm::rotate((float)(bird2_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 bird2Transform = translatebird2 ;
+  Matrices.model *= translatebird2 * rotatebird2;
+  MVP = VP * Matrices.model; // MVP = p * V * M
+
+  //  Don't change unless you are sure!!
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(bird2);
+
+    // bird3
+  Matrices.model = glm::mat4(1.0f);
+
+
+  glm::mat4 translatebird3 = glm::translate (glm::vec3(-1.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 rotatebird3 = glm::rotate((float)(bird3_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 bird3Transform = translatebird3 ;
+  Matrices.model *= translatebird3 * rotatebird3;
+  MVP = VP * Matrices.model; // MVP = p * V * M
+
+  //  Don't change unless you are sure!!
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(bird3);
+
+  // rectangle
   Matrices.model = glm::mat4(1.0f);
 
   glm::mat4 translateRectangle = glm::translate (glm::vec3(2, 0, 0));        // glTranslatef
@@ -494,6 +536,7 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(rectangle);
 
+  // canon
   Matrices.model = glm::mat4(1.0f);
 
   glm::mat4 translatecanon = glm::translate (glm::vec3(-3, -3, 0));        // glTranslatef
@@ -512,7 +555,9 @@ void draw ()
   float increments = 1;
 
   //camera_rotation_angle++; // Simulating camera rotation
-  triangle_rotation = triangle_rotation + increments*triangle_rot_dir*triangle_rot_status;
+  bird1_rotation = bird1_rotation + increments*bird1_rot_dir*bird1_rot_status;
+  bird2_rotation = bird2_rotation + increments*bird2_rot_dir*bird2_rot_status;
+  bird3_rotation = bird3_rotation + increments*bird3_rot_dir*bird3_rot_status;
   rectangle_rotation = rectangle_rotation + increments*rectangle_rot_dir*rectangle_rot_status;
   canon_rotation = canon_rotation + (increments/5)*canon_rot_dir*canon_rot_status*-1;
 }
