@@ -199,6 +199,7 @@ void draw3DObject (struct VAO* vao)
  * Customizable functions *
  **************************/
 
+float camera_rotation_angle = 90;
 float bird1_rot_dir = 1;
 float bird2_rot_dir = 1;
 float bird3_rot_dir = 1;
@@ -207,9 +208,23 @@ float canon_rot_dir = 1;
 bool bird1_rot_status = false;
 bool bird2_rot_status = false;
 bool bird3_rot_status = false;
-bool rectangle_rot_status = true;
-bool canon_rot_status = true;
-float canon_rotate_angle = 0 ;
+bool rectangle_rot_status = false;
+bool canon_rot_status = false;
+float rectangle_rotation = 0;
+float bird1_rotation = 0;
+float bird2_rotation = 0;
+float bird3_rotation = 0;
+float canon_rotation = 0;
+float power = 8 ;
+float power_meter = 8 ;
+bool shoot = false ;
+float flying_time = -987 ;
+float newx =0 ;
+float newy =0 ;
+double o=0;
+double theta = 0 ;
+double collisionx = 0;
+double collisiony = 0;
 
 /* Executed when a regular key is pressed */
 void keyboardDown (unsigned char key, int x, int y)
@@ -232,21 +247,30 @@ void keyboardUp (unsigned char key, int x, int y)
         case 'C':
             rectangle_rot_status = !rectangle_rot_status;
             break;
-        // case 'p':
-        // case 'P':
-        //     triangle_rot_status = !triangle_rot_status;
-        //     break;
-        case 'w':
-        case 'W':
-            canon_rot_status = ! canon_rot_status;
-            break;
         case 'a':
         case 'A':
-            canon_rot_dir = -1;
+            canon_rotation += -10;
         break;
         case 'd':
         case 'D':
-            canon_rot_dir = 1;
+            canon_rotation += 10;
+        break;
+        case 'w':
+        case 'W':
+            power_meter +=1;
+        break;
+        case 's':
+        case 'S':
+            power_meter -=1;
+        break;
+        case 'm':
+        case 'M':
+            shoot = true ;
+            flying_time = -987;
+            theta = (canon_rotation)*M_PI/180.0f ;
+            power = power_meter ;
+            collisionx =0 ;
+            collisiony =0 ;
         break;
         default:
             break;
@@ -363,7 +387,7 @@ void create_angry_bird (GLdouble centrex,GLdouble centrey)
   // create3DObject creates and returns a handle to a VAO that can be used later
   bird1 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
   bird2 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
-  bird3 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
+  bird3 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
   i=0;
 }
 
@@ -376,12 +400,12 @@ void createcanon (GLdouble centrex,GLdouble centrey)
 
     hexTheta = TWO_PI * 0/20;
     x = centrex + radius * cos(hexTheta);
-    y = centrey + radius * sin(hexTheta)+ canon_rotate_angle;
+    y = centrey + radius * sin(hexTheta);
     add(0,0);
     add(x,y);
     hexTheta = TWO_PI * 1/20;
     x = centrex + radius * cos(hexTheta);
-    y = centrey + radius * sin(hexTheta)+ canon_rotate_angle;
+    y = centrey + radius * sin(hexTheta);
     add(x,y);
     previousy = y;
     previousx = x;
@@ -393,7 +417,7 @@ void createcanon (GLdouble centrex,GLdouble centrey)
         hexTheta = TWO_PI * j/20;
         // defining the new vertices
         x = centrex + radius * cos(hexTheta);
-        y = centrey + radius * sin(hexTheta)+ canon_rotate_angle;
+        y = centrey + radius * sin(hexTheta);
         // assigining vertices to new triangle
         add(0,0);
         add(previousx,previousy);
@@ -411,13 +435,13 @@ void createRectangle ()
 {
   // GL3 accepts only Triangles. Quads are not supported static
   const GLfloat vertex_buffer_data [] = {
-    -1.2,-1,0, // vertex 1
-    1.2,-1,0, // vertex 2
-    1.2, 1,0, // vertex 3
+    -0.2,-0.2,0, // vertex 1
+    0.2,-0.2,0, // vertex 2
+    0.2,0.2,0, // vertex 3
 
-    1.2, 1,0, // vertex 3
-    -1.2, 1,0, // vertex 4
-    -1.2,-1,0  // vertex 1
+    0.2,0.2,0, // vertex 3
+    -0.2,0.2,0, // vertex 4
+    -0.2,-0.2,0,  // vertex 1
   };
 
   static const GLfloat color_buffer_data [] = {
@@ -431,16 +455,10 @@ void createRectangle ()
   };
 
   // create3DObject creates and returns a handle to a VAO that can be used later
-  rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+  rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_LINE);
 }
 
 
-float camera_rotation_angle = 90;
-float rectangle_rotation = 0;
-float bird1_rotation = 0;
-float bird2_rotation = 0;
-float bird3_rotation = 0;
-float canon_rotation = 0;
 
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
@@ -496,7 +514,7 @@ void draw ()
   Matrices.model = glm::mat4(1.0f);
 
 
-  glm::mat4 translatebird2 = glm::translate (glm::vec3(1.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 translatebird2 = glm::translate (glm::vec3(-3.0f, -3.0f, 0.0f)); // glTranslatef
   glm::mat4 rotatebird2 = glm::rotate((float)(bird2_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 bird2Transform = translatebird2 ;
   Matrices.model *= translatebird2 * rotatebird2;
@@ -511,8 +529,35 @@ void draw ()
     // bird3
   Matrices.model = glm::mat4(1.0f);
 
+  if (shoot==true)
+  {
+      flying_time = (2*power*(sin(theta)))/10;
+      shoot =false ; // initialise shoot
+      o=0;
+  }
 
-  glm::mat4 translatebird3 = glm::translate (glm::vec3(-1.0f, 0.0f, 0.0f)); // glTranslatef
+  // flying_time = 5 ;
+  if(o<=flying_time)
+  {
+      newx = power*o*cos(theta);
+      newy = power*sin(theta)*o - 5*o*o;
+  }
+  else if(flying_time >= 0.09)
+  {
+      flying_time /= 2 ;
+      power /= 2 ;
+      o=0;
+      collisionx += newx ;
+    //   collisiony += newy ;
+  }
+  else
+  {
+      newx = 0;
+      newy = 0 ;
+  }
+  o += 0.009;
+
+  glm::mat4 translatebird3 = glm::translate (glm::vec3(-3.00f + collisionx+newx , -3.00f + collisiony+newy , 0.0f)); // glTranslatef
   glm::mat4 rotatebird3 = glm::rotate((float)(bird3_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 bird3Transform = translatebird3 ;
   Matrices.model *= translatebird3 * rotatebird3;
@@ -539,8 +584,8 @@ void draw ()
   // canon
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecanon = glm::translate (glm::vec3(-3, -3, 0));        // glTranslatef
-  glm::mat4 rotatecanon = glm::rotate((float)(canon_rotation*M_PI/80.0f), glm::vec3(0,0,1)); // rotate about vector (0,0,1)
+  glm::mat4 translatecanon = glm::translate (glm::vec3(-3,-3, 0));        // glTranslatef
+  glm::mat4 rotatecanon = glm::rotate((float)((canon_rotation)*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (0,0,1)
   Matrices.model *= (translatecanon * rotatecanon);
   MVP = VP * Matrices.model;
   glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
@@ -644,7 +689,7 @@ void initGL (int width, int height )
 	// Create the models
 	create_angry_bird (0,0); // Generate the VAO, VBOs, vertices data & copy into the array buffer
 	createRectangle ();
-    createcanon (1,1); // pointed at -3   .5,-3
+    createcanon (2,0); // pointed at -3   .5,-3
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
