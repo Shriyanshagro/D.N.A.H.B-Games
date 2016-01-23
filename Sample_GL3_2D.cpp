@@ -225,6 +225,11 @@ double o=0;
 double theta = 0 ;
 double collisionx = 0;
 double collisiony = 0;
+double accelarationx = 0;
+double accelarationy =0 ;
+double gravity = 10 ;
+double speed = 0 ;
+double water_friction = 0.5;
 
 /* Executed when a regular key is pressed */
 void keyboardDown (unsigned char key, int x, int y)
@@ -536,13 +541,14 @@ void draw ()
       o=0;
   }
 
-  // flying_time = 5 ;
+  accelarationx = 0;
+  accelarationy = gravity ;
   if(o<=flying_time)
   {
-      newx = power*o*cos(theta);
-      newy = power*sin(theta)*o - 5*o*o;
+      newx = power*o*cos(theta) - accelarationx*o*o*2;
+      newy = power*sin(theta)*o - accelarationy*o*o/2;
   }
-  else if(flying_time >= 0.09)
+  else if(newy)
   {
       flying_time /= 2 ;
       power /= 2 ;
