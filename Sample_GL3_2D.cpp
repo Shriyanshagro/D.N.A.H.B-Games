@@ -235,6 +235,7 @@ double uy =0 ;
 double finalx =0 ;
 double finaly =0 ;
 double direction =9 ;
+double radius=.30f ;  // radius of angryobject
 
 /* Executed when a regular key is pressed */
 void keyboardDown (unsigned char key, int x, int y)
@@ -259,11 +260,11 @@ void keyboardUp (unsigned char key, int x, int y)
             break;
         case 'a':
         case 'A':
-            canon_rotation += -10;
+            canon_rotation += -3;
         break;
         case 'd':
         case 'D':
-            canon_rotation += 10;
+            canon_rotation += 3;
         break;
         case 'w':
         case 'W':
@@ -281,6 +282,8 @@ void keyboardUp (unsigned char key, int x, int y)
             theta = (canon_rotation)*M_PI/180.0f ;
             power = power_meter ;
             collisionx =0 ;
+            newy =0 ;
+            newx =0 ;
             collisiony =0 ;
             ux = power*cos(theta);
             uy = power*(sin(theta));
@@ -368,7 +371,7 @@ void create_angry_bird (GLdouble centrex,GLdouble centrey)
   /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
 
     const double TWO_PI = 6.2831853;
-    GLdouble hexTheta,x,y,radius=.30,previousx,previousy;
+    GLdouble hexTheta,x,y,previousx,previousy;
     // adds point to the vertex_buffer array
 
     hexTheta = TWO_PI * 0/40;
@@ -410,17 +413,17 @@ void createcanon (GLdouble centrex,GLdouble centrey)
 {
   /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
     const double TWO_PI = 6.2831853;
-    GLdouble hexTheta,x,y,radius=.50,previousx,previousy;
+    GLdouble hexTheta,x,y,radius_canon=.50,previousx,previousy;
     // adds point to the vertex_buffer array
 
     hexTheta = TWO_PI * 0/20;
-    x = centrex + radius * cos(hexTheta);
-    y = centrey + radius * sin(hexTheta);
+    x = centrex + radius_canon * cos(hexTheta);
+    y = centrey + radius_canon * sin(hexTheta);
     add(0,0);
     add(x,y);
     hexTheta = TWO_PI * 1/20;
-    x = centrex + radius * cos(hexTheta);
-    y = centrey + radius * sin(hexTheta);
+    x = centrex + radius_canon * cos(hexTheta);
+    y = centrey + radius_canon * sin(hexTheta);
     add(x,y);
     previousy = y;
     previousx = x;
@@ -431,8 +434,8 @@ void createcanon (GLdouble centrex,GLdouble centrey)
     {
         hexTheta = TWO_PI * j/20;
         // defining the new vertices
-        x = centrex + radius * cos(hexTheta);
-        y = centrey + radius * sin(hexTheta);
+        x = centrex + radius_canon * cos(hexTheta);
+        y = centrey + radius_canon * sin(hexTheta);
         // assigining vertices to new triangle
         add(0,0);
         add(previousx,previousy);
@@ -484,6 +487,12 @@ void accelaration_func(){
 }
 
 void move_func(){
+    // defining postion of ground
+    if (collisiony+newy <0)
+    {
+        shoot =false;
+    }
+
       if(shoot == false)
       return ;
 
@@ -494,6 +503,9 @@ void move_func(){
 
 void collision_func(){
 
+    if(shoot == false)
+    return ;
+
   //   condition of stopping the ball
     if(ux < 0.09){
         ux=0;
@@ -502,14 +514,17 @@ void collision_func(){
         uy =0 ;
     }
     // REVIEW
-  //   condition of collision with ground
-    if((collisiony + newy ) <= 0.05  )
+
+  //   collision with ground
+  // radius of angryobject
+    cout <<collisiony+newy<<" , "<<collisionx+newx<<endl;
+    if((collisiony + newy ) < 0.005f )
     {
+        uy -= gravity*o;
         if(uy < 0){
-            uy -= gravity*o;
             uy *= -1 ;
             collisiony = 0 ;
-            newy =0.05 ;
+            // newy =0.05 ;
         }
         ux /=1.5;
         uy /=1.5 ;
@@ -519,7 +534,8 @@ void collision_func(){
         // newx = 0 ;
         o=0;
     }
-    if((collisiony + newy ) >= 4.9 && (collisiony + newy ) <= 5.25  && (collisionx + newx -3) >= -1.75 && (collisionx + newx -3) <= -0.45) {
+    // collision with left-most object
+    else if((collisiony + newy ) >= 4.9 && (collisiony + newy ) <= 5.25  && (collisionx + newx -3) >= -1.75 && (collisionx + newx -3) <= -0.45) {
         uy -= gravity*o;
         uy /=4 ;
         uy *= -1 ;
@@ -612,7 +628,7 @@ void draw ()
   //   //   o=0;
   // }
 
-  o += 0.009;
+  o += 0.007;
   accelaration_func();
   move_func();
   collision_func();
