@@ -208,12 +208,12 @@ float rectangle2_rot_dir = 1;
 float rectangle3_rot_dir = 1;
 float rectangle4_rot_dir = 1;
 float rectangle5_rot_dir = 1;
-float coins1_rot_dir = 1;
-float coins2_rot_dir = 1;
-float coins3_rot_dir = 1;
-float coins4_rot_dir = 1;
-float coins5_rot_dir = 1;
-float coins6_rot_dir = 1;
+float coins1_rot_dir = -1;
+float coins2_rot_dir = -1;
+float coins3_rot_dir = -1;
+float coins4_rot_dir = -1;
+float coins5_rot_dir = -1;
+float coins6_rot_dir = -1;
 float canon_rot_dir = 1;
 bool bird1_rot_status = false;
 bool bird2_rot_status = false;
@@ -456,12 +456,12 @@ void create_angry_coins (GLdouble centrex,GLdouble centrey)
     GLdouble hexTheta,x,y,radius=.10,previousx,previousy;
     // adds point to the vertex_buffer array
 
-    hexTheta = TWO_PI * 0/40;
+    hexTheta = TWO_PI * 0;
     x = centrex + radius * cos(hexTheta);
     y = centrey + radius * sin(hexTheta);
     add_coins(centrex,centrey);
     add_coins(x,y);
-    hexTheta = TWO_PI * 1/20;
+    hexTheta = TWO_PI * 1/10;
     x = centrex + radius * cos(hexTheta);
     y = centrey + radius * sin(hexTheta);
     add_coins(x,y);
@@ -470,9 +470,9 @@ void create_angry_coins (GLdouble centrex,GLdouble centrey)
 
     int j;
     // building many triangles to form one circle
-    for(j=2;j<=20;j++)
+    for(j=2;j<=10;j++)
     {
-        hexTheta = TWO_PI * j/20;
+        hexTheta = TWO_PI * j/10;
         // defining the new vertices
         x = centrex + radius * cos(hexTheta);
         y = centrey + radius * sin(hexTheta);
@@ -485,12 +485,12 @@ void create_angry_coins (GLdouble centrex,GLdouble centrey)
     }
 
   // create3DObject creates and returns a handle to a VAO that can be used later
-  coins1 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
-  coins2 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
-  coins3 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
-  coins4 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
-  coins5 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
-  coins6 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins1 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins2 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins3 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins4 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins5 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins6 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
   i=0;
 }
 
@@ -835,7 +835,7 @@ void draw ()
   Matrices.model = glm::mat4(1.0f);
 
   // o defines time
-  o += 0.003;
+  o += 0.007;
   accelaration_func();
   move_func();
   collision_func();
@@ -935,12 +935,12 @@ void draw ()
   bird1_rotation = bird1_rotation + increments*bird1_rot_dir*bird1_rot_status;
   bird2_rotation = bird2_rotation + increments*bird2_rot_dir*bird2_rot_status;
   bird3_rotation = bird3_rotation + increments*bird3_rot_dir*bird3_rot_status;
-  coins1_rotation = coins1_rotation + increments*coins1_rot_dir*coins1_rot_status;
-  coins2_rotation = coins2_rotation + increments*coins2_rot_dir*coins2_rot_status;
-  coins3_rotation = coins3_rotation + increments*coins3_rot_dir*coins3_rot_status;
-  coins4_rotation = coins4_rotation + increments*coins4_rot_dir*coins4_rot_status;
-  coins5_rotation = coins5_rotation + increments*coins5_rot_dir*coins5_rot_status;
-  coins6_rotation = coins6_rotation + increments*coins6_rot_dir*coins6_rot_status;
+  coins1_rotation = coins1_rotation + (increments+2)*coins1_rot_dir*coins1_rot_status;
+  coins2_rotation = coins2_rotation + (increments+2)*coins2_rot_dir*coins2_rot_status;
+  coins3_rotation = coins3_rotation + (increments+2)*coins3_rot_dir*coins3_rot_status;
+  coins4_rotation = coins4_rotation + (increments+2)*coins4_rot_dir*coins4_rot_status;
+  coins5_rotation = coins5_rotation + (increments+2)*coins5_rot_dir*coins5_rot_status;
+  coins6_rotation = coins6_rotation + (increments+2)*coins6_rot_dir*coins6_rot_status;
   rectangle_rotation = rectangle_rotation + increments*rectangle_rot_dir*rectangle_rot_status;
   rectangle2_rotation = rectangle2_rotation + increments*rectangle2_rot_dir*rectangle2_rot_status;
   rectangle3_rotation = rectangle3_rotation + increments*rectangle3_rot_dir*rectangle3_rot_status;
