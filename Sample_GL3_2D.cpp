@@ -709,10 +709,10 @@ void draw ()
   // Load identity to model matrix
   /* Render your scene */
 
-  // coins1
+  // coins1 , beside ground block
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins1 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins1 = glm::translate (glm::vec3(2.0f, -3.10f, 0.0f)); // glTranslatef
   glm::mat4 rotatecoins1 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins1Transform = translatecoins1 ;
   Matrices.model *= translatecoins1 * rotatecoins1;
@@ -724,10 +724,10 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(coins1);
 
-  // coins2
+  // coins2 ,at last of ground
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins2 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins2 = glm::translate (glm::vec3(3.8f, -3.1f, 0.0f)); // glTranslatef
   glm::mat4 rotatecoins2 = glm::rotate((float)(coins2_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins2Transform = translatecoins2 ;
   Matrices.model *= translatecoins2 * rotatecoins2;
@@ -739,10 +739,10 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(coins2);
 
-  // coins3
+  // coins3 , up-left most
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins3 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins3 = glm::translate (glm::vec3(-1.55f, 2.3f, 0.0f)); // glTranslatef
   glm::mat4 rotatecoins3 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins3Transform = translatecoins3 ;
   Matrices.model *= translatecoins3 * rotatecoins3;
@@ -754,10 +754,10 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(coins3);
 
-  // coins4
+  // coins4 up-left second coin
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins4 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins4 = glm::translate (glm::vec3(-0.7f, 2.3f, 0.0f)); // glTranslatef
   glm::mat4 rotatecoins4 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins4Transform = translatecoins4 ;
   Matrices.model *= translatecoins4 * rotatecoins4;
@@ -769,10 +769,10 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(coins4);
 
-  // coins5
+  // coins5 up-right most coin
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins5 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins5 = glm::translate (glm::vec3(3.0f, 2.3f, 0.0f)); // glTranslatef
   glm::mat4 rotatecoins5 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins5Transform = translatecoins5 ;
   Matrices.model *= translatecoins5 * rotatecoins5;
@@ -784,10 +784,10 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(coins5);
 
-  // coins6
+  // coins6 , insude water 
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins6 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins6 = glm::translate (glm::vec3(2.5f, 0.0f, 0.0f)); // glTranslatef
   glm::mat4 rotatecoins6 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins6Transform = translatecoins6 ;
   Matrices.model *= translatecoins6 * rotatecoins6;
