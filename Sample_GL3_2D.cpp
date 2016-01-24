@@ -201,7 +201,7 @@ void draw3DObject (struct VAO* vao)
 
 float camera_rotation_angle = 90;
 float bird1_rot_dir = 1;
-float bird2_rot_dir = 1;
+float bird2_rot_dir = -1;
 float bird3_rot_dir = 1;
 float rectangle_rot_dir = 1;
 float rectangle2_rot_dir = 1;
@@ -215,9 +215,9 @@ float coins4_rot_dir = -1;
 float coins5_rot_dir = -1;
 float coins6_rot_dir = -1;
 float canon_rot_dir = 1;
-bool bird1_rot_status = false;
+bool bird1_rot_status = true;
 bool bird2_rot_status = false;
-bool bird3_rot_status = false;
+bool bird3_rot_status = true;
 bool coins1_rot_status = true;
 bool coins2_rot_status = true;
 bool coins3_rot_status = true;
@@ -265,6 +265,7 @@ double uy =0 ;
 double finalx =0 ;
 double finaly =0 ;
 double direction =9 ;
+double moving_wheelx =0;
 
 /* Executed when a regular key is pressed */
 void keyboardDown (unsigned char key, int x, int y)
@@ -314,6 +315,7 @@ void keyboardUp (unsigned char key, int x, int y)
             collisiony =0 ;
             ux = power*cos(theta);
             uy = power*(sin(theta));
+            bird1_rot_status = true ;
             o=0;
         }
         break;
@@ -442,7 +444,7 @@ void create_angry_bird (GLdouble centrex,GLdouble centrey)
     }
 
   // create3DObject creates and returns a handle to a VAO that can be used later
-  bird1 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
+  bird1 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
   bird2 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
   bird3 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
   i=0;
@@ -629,6 +631,11 @@ void move_func(){
       newx = ux*o - accelarationx*o*o*2;
       newy = uy*o - accelarationy*o*o/2;
 
+      if(ux <= 0.25f && uy <=.025f)
+      {
+        shoot = false ;
+      }
+
 }
 
 void collision_func(){
@@ -673,6 +680,7 @@ void collision_func(){
       if(ux<=0.09 && uy<=0.09)
       {
           shoot=false;
+          bird1_rot_status = false;
       }
 }
 
@@ -784,7 +792,7 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(coins5);
 
-  // coins6 , insude water 
+  // coins6 , insude water
   Matrices.model = glm::mat4(1.0f);
 
   glm::mat4 translatecoins6 = glm::translate (glm::vec3(2.5f, 0.0f, 0.0f)); // glTranslatef
@@ -799,20 +807,6 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(coins6);
 
-  // bird1
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translatebird1 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
-  glm::mat4 rotatebird1 = glm::rotate((float)(bird1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-  glm::mat4 bird1Transform = translatebird1 ;
-  Matrices.model *= translatebird1 * rotatebird1;
-  MVP = VP * Matrices.model; // MVP = p * V * M
-
-  //  Don't change unless you are sure!!
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  // draw3DObject(bird1);
 
   // bird2
   Matrices.model = glm::mat4(1.0f);
@@ -924,6 +918,25 @@ void draw ()
 
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(canon);
+
+  // bird1
+  Matrices.model = glm::mat4(1.0f);
+
+  moving_wheelx -= 0.017f;
+  if(moving_wheelx <= -4.1f)
+    moving_wheelx = 4.25f;
+  glm::mat4 translatebird1 = glm::translate (glm::vec3(moving_wheelx, -3.7f, 0.0f)); // glTranslatef
+  glm::mat4 rotatebird1 = glm::rotate((float)(bird1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 bird1Transform = translatebird1 ;
+  Matrices.model *= translatebird1 * rotatebird1;
+  MVP = VP * Matrices.model; // MVP = p * V * M
+
+  //  Don't change unless you are sure!!
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(bird1);
+
 
   // Swap the frame buffers
   glutSwapBuffers ();
