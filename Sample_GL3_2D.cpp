@@ -208,10 +208,22 @@ float rectangle2_rot_dir = 1;
 float rectangle3_rot_dir = 1;
 float rectangle4_rot_dir = 1;
 float rectangle5_rot_dir = 1;
+float coins1_rot_dir = 1;
+float coins2_rot_dir = 1;
+float coins3_rot_dir = 1;
+float coins4_rot_dir = 1;
+float coins5_rot_dir = 1;
+float coins6_rot_dir = 1;
 float canon_rot_dir = 1;
 bool bird1_rot_status = false;
 bool bird2_rot_status = false;
 bool bird3_rot_status = false;
+bool coins1_rot_status = true;
+bool coins2_rot_status = true;
+bool coins3_rot_status = true;
+bool coins4_rot_status = true;
+bool coins5_rot_status = true;
+bool coins6_rot_status = true;
 bool rectangle_rot_status = false;
 bool rectangle2_rot_status = false;
 bool rectangle3_rot_status = false;
@@ -226,6 +238,12 @@ float rectangle5_rotation = 0;
 float bird1_rotation = 0;
 float bird2_rotation = 0;
 float bird3_rotation = 0;
+float coins1_rotation = 0;
+float coins2_rotation = 0;
+float coins3_rotation = 0;
+float coins4_rotation = 0;
+float coins5_rotation = 0;
+float coins6_rotation = 0;
 float canon_rotation = 20;
 float power = 8 ;
 float power_meter = 8 ;
@@ -359,7 +377,7 @@ void reshapeWindow (int width, int height)
     Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
 }
 
-VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5;
+VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5,*coins1,*coins2,*coins3,*coins4,*coins5,*coins6;
 
 int i=0;
 GLfloat vertex_buffer_data [500] ;
@@ -374,6 +392,18 @@ void add(GLdouble x,GLdouble y)
     color_buffer_data[i++]=0.3098040;
 
 }
+
+void add_coins(GLdouble x,GLdouble y)
+{
+    vertex_buffer_data[i]=x;
+    color_buffer_data[i++]= 0.8  ;
+    vertex_buffer_data[i]=y;
+    color_buffer_data[i++]=0.498039;
+    vertex_buffer_data[i]=0;
+    color_buffer_data[i++]=0.196078;
+
+}
+
 // Creates the triangle object used in this sample code
 void create_angry_bird (GLdouble centrex,GLdouble centrey)
 {
@@ -418,6 +448,54 @@ void create_angry_bird (GLdouble centrex,GLdouble centrey)
   i=0;
 }
 
+void create_angry_coins (GLdouble centrex,GLdouble centrey)
+{
+  /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
+
+    const double TWO_PI = 6.2831853;
+    GLdouble hexTheta,x,y,radius=.10,previousx,previousy;
+    // adds point to the vertex_buffer array
+
+    hexTheta = TWO_PI * 0/40;
+    x = centrex + radius * cos(hexTheta);
+    y = centrey + radius * sin(hexTheta);
+    add_coins(centrex,centrey);
+    add_coins(x,y);
+    hexTheta = TWO_PI * 1/20;
+    x = centrex + radius * cos(hexTheta);
+    y = centrey + radius * sin(hexTheta);
+    add_coins(x,y);
+    previousy = y;
+    previousx = x;
+
+    int j;
+    // building many triangles to form one circle
+    for(j=2;j<=20;j++)
+    {
+        hexTheta = TWO_PI * j/20;
+        // defining the new vertices
+        x = centrex + radius * cos(hexTheta);
+        y = centrey + radius * sin(hexTheta);
+        // assigining vertices to new triangle
+        add_coins(centrex,centrey);
+        add_coins(previousx,previousy);
+        add_coins(x,y);
+        previousy = y;
+        previousx = x;
+    }
+
+  // create3DObject creates and returns a handle to a VAO that can be used later
+  coins1 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins2 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins3 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins4 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins5 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
+  coins6 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
+  i=0;
+}
+
+
+// creates canon
 void createcanon (GLdouble centrex,GLdouble centrey)
 {
   /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
@@ -631,6 +709,96 @@ void draw ()
   // Load identity to model matrix
   /* Render your scene */
 
+  // coins1
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translatecoins1 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 rotatecoins1 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 coins1Transform = translatecoins1 ;
+  Matrices.model *= translatecoins1 * rotatecoins1;
+  MVP = VP * Matrices.model; // MVP = p * V * M
+
+  //  Don't change unless you are sure!!
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(coins1);
+
+  // coins2
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translatecoins2 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 rotatecoins2 = glm::rotate((float)(coins2_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 coins2Transform = translatecoins2 ;
+  Matrices.model *= translatecoins2 * rotatecoins2;
+  MVP = VP * Matrices.model; // MVP = p * V * M
+
+  //  Don't change unless you are sure!!
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(coins2);
+
+  // coins3
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translatecoins3 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 rotatecoins3 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 coins3Transform = translatecoins3 ;
+  Matrices.model *= translatecoins3 * rotatecoins3;
+  MVP = VP * Matrices.model; // MVP = p * V * M
+
+  //  Don't change unless you are sure!!
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(coins3);
+
+  // coins4
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translatecoins4 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 rotatecoins4 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 coins4Transform = translatecoins4 ;
+  Matrices.model *= translatecoins4 * rotatecoins4;
+  MVP = VP * Matrices.model; // MVP = p * V * M
+
+  //  Don't change unless you are sure!!
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(coins4);
+
+  // coins5
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translatecoins5 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 rotatecoins5 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 coins5Transform = translatecoins5 ;
+  Matrices.model *= translatecoins5 * rotatecoins5;
+  MVP = VP * Matrices.model; // MVP = p * V * M
+
+  //  Don't change unless you are sure!!
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(coins5);
+
+  // coins6
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translatecoins6 = glm::translate (glm::vec3(0.0f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 rotatecoins6 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+  glm::mat4 coins6Transform = translatecoins6 ;
+  Matrices.model *= translatecoins6 * rotatecoins6;
+  MVP = VP * Matrices.model; // MVP = p * V * M
+
+  //  Don't change unless you are sure!!
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(coins6);
+
   // bird1
   Matrices.model = glm::mat4(1.0f);
 
@@ -644,7 +812,7 @@ void draw ()
   glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
   // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(bird1);
+  // draw3DObject(bird1);
 
   // bird2
   Matrices.model = glm::mat4(1.0f);
@@ -666,8 +834,8 @@ void draw ()
 
   Matrices.model = glm::mat4(1.0f);
 
-
-  o += 0.009;
+  // o defines time
+  o += 0.003;
   accelaration_func();
   move_func();
   collision_func();
@@ -767,6 +935,12 @@ void draw ()
   bird1_rotation = bird1_rotation + increments*bird1_rot_dir*bird1_rot_status;
   bird2_rotation = bird2_rotation + increments*bird2_rot_dir*bird2_rot_status;
   bird3_rotation = bird3_rotation + increments*bird3_rot_dir*bird3_rot_status;
+  coins1_rotation = coins1_rotation + increments*coins1_rot_dir*coins1_rot_status;
+  coins2_rotation = coins2_rotation + increments*coins2_rot_dir*coins2_rot_status;
+  coins3_rotation = coins3_rotation + increments*coins3_rot_dir*coins3_rot_status;
+  coins4_rotation = coins4_rotation + increments*coins4_rot_dir*coins4_rot_status;
+  coins5_rotation = coins5_rotation + increments*coins5_rot_dir*coins5_rot_status;
+  coins6_rotation = coins6_rotation + increments*coins6_rot_dir*coins6_rot_status;
   rectangle_rotation = rectangle_rotation + increments*rectangle_rot_dir*rectangle_rot_status;
   rectangle2_rotation = rectangle2_rotation + increments*rectangle2_rot_dir*rectangle2_rot_status;
   rectangle3_rotation = rectangle3_rotation + increments*rectangle3_rot_dir*rectangle3_rot_status;
@@ -862,6 +1036,7 @@ void initGL (int width, int height )
     createcanon (2,0); // pointed at -3   .5,-3
     ground_rectangle();
     water_rectangle();
+    create_angry_coins(0,0);
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
