@@ -14,15 +14,6 @@
 
 using namespace std;
 
-// void initGLUT (argc, argv, width, height);
-// void addGLUTMenus ();
-// void initGL (width, height);
-// void glutMainLoop ();
-// void keyboardDown(unsigned char key, int x, int y);
-// void keyboardUp(unsigned char key, int x, int y);
-// void keyboardSpecialUp(int key, int x, int y);
-// void keyboardSpecialDown(int 2  key, int x, int y);
-
 struct VAO {
     GLuint VertexArrayID;
     GLuint VertexBuffer;
@@ -257,18 +248,22 @@ double collisionx = 0;
 double collisiony = 0;
 double accelarationx = 0;
 double accelarationy =0 ;
-double gravity = 10 ;
+double gravity = -10 ;
 double water_friction = 0.5;
 double ground_friction = 0.2;
 double ux =0 ;
+double vx=0;
 double uy =0 ;
+double vy =0;
 double finalx =0 ;
 double finaly =0 ;
 double direction =9 ;
+double radius=.30f ;  // radius of angryobject
 double moving_wheelx =0;
+double energy =0;
 
 /* Executed when a regular key is pressed */
-void keyboardDown (unsigned char key, int x, int y)
+void keyboardUp (unsigned char key, int x, int y)
 {
     switch (key) {
         case 'Q':
@@ -281,7 +276,7 @@ void keyboardDown (unsigned char key, int x, int y)
 }
 
 /* Executed when a regular key is released */
-void keyboardUp (unsigned char key, int x, int y)
+void keyboardDown (unsigned char key, int x, int y)
 {
     switch (key) {
         case 'c':
@@ -290,34 +285,40 @@ void keyboardUp (unsigned char key, int x, int y)
             break;
         case 'a':
         case 'A':
-            canon_rotation += -10;
+            if(canon_rotation >=3)
+            canon_rotation += -3;
         break;
         case 'd':
         case 'D':
-            canon_rotation += 10;
+            if(canon_rotation <=87)
+            canon_rotation += 3;
         break;
         case 'w':
         case 'W':
-            power_meter +=1;
+            power_meter +=0.5f;
         break;
         case 's':
         case 'S':
-            power_meter -=1;
+            power_meter -=0.5f;
         break;
         case 'm':
         case 'M':
-            if(shoot == false){
+            // if(shoot == false){
             shoot = true ;
             flying_time = -987;
             theta = (canon_rotation)*M_PI/180.0f ;
             power = power_meter ;
             collisionx =0 ;
+            newy =0 ;
+            newx =0 ;
             collisiony =0 ;
             ux = power*cos(theta);
+            vx=0;
             uy = power*(sin(theta));
+            vy =0;
             bird1_rot_status = true ;
             o=0;
-        }
+        // }
         break;
         default:
             break;
@@ -412,7 +413,7 @@ void create_angry_bird (GLdouble centrex,GLdouble centrey)
   /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
 
     const double TWO_PI = 6.2831853;
-    GLdouble hexTheta,x,y,radius=.30,previousx,previousy;
+    GLdouble hexTheta,x,y,previousx,previousy;
     // adds point to the vertex_buffer array
 
     hexTheta = TWO_PI * 0/40;
@@ -444,9 +445,9 @@ void create_angry_bird (GLdouble centrex,GLdouble centrey)
     }
 
   // create3DObject creates and returns a handle to a VAO that can be used later
-  bird1 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
-  bird2 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL);
-  bird3 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE);
+  bird1 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE); // moving_wheel
+  bird2 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_FILL); //canon's wheel
+  bird3 = create3DObject(GL_TRIANGLES, 180, vertex_buffer_data, color_buffer_data, GL_LINE); // angry_bird
   i=0;
 }
 
@@ -502,17 +503,17 @@ void createcanon (GLdouble centrex,GLdouble centrey)
 {
   /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
     const double TWO_PI = 6.2831853;
-    GLdouble hexTheta,x,y,radius=.50,previousx,previousy;
+    GLdouble hexTheta,x,y,radius_canon=.50,previousx,previousy;
     // adds point to the vertex_buffer array
 
     hexTheta = TWO_PI * 0/20;
-    x = centrex + radius * cos(hexTheta);
-    y = centrey + radius * sin(hexTheta);
+    x = centrex + radius_canon * cos(hexTheta);
+    y = centrey + radius_canon * sin(hexTheta);
     add(0,0);
     add(x,y);
     hexTheta = TWO_PI * 1/20;
-    x = centrex + radius * cos(hexTheta);
-    y = centrey + radius * sin(hexTheta);
+    x = centrex + radius_canon * cos(hexTheta);
+    y = centrey + radius_canon * sin(hexTheta);
     add(x,y);
     previousy = y;
     previousx = x;
@@ -523,8 +524,8 @@ void createcanon (GLdouble centrex,GLdouble centrey)
     {
         hexTheta = TWO_PI * j/20;
         // defining the new vertices
-        x = centrex + radius * cos(hexTheta);
-        y = centrey + radius * sin(hexTheta);
+        x = centrex + radius_canon * cos(hexTheta);
+        y = centrey + radius_canon * sin(hexTheta);
         // assigining vertices to new triangle
         add(0,0);
         add(previousx,previousy);
@@ -628,59 +629,72 @@ void move_func(){
       if(shoot == false)
       return ;
 
-      newx = ux*o - accelarationx*o*o*2;
-      newy = uy*o - accelarationy*o*o/2;
-
-      if(ux <= 0.25f && uy <=.025f)
-      {
-        shoot = false ;
-      }
+      vx = ux + accelarationx*o;
+      vy =uy + accelarationy*o;
+      energy = pow(vx,2) + pow(vy,2);
+      energy = sqrt(energy);
+      newx = ux*o + accelarationx*o*o*2;
+      newy = uy*o + accelarationy*o*o/2;
 
 }
 
 void collision_func(){
 
-  //   condition of stopping the ball
-    if(ux < 0.09){
-        ux=0;
-    }
-    else if(uy < 0.09){
-        uy =0 ;
-    }
+    if(shoot == false)
+    return ;
+
     // REVIEW
-  //   condition of collision with ground
-    if((collisiony + newy ) <= 0.05  )
+    // bird3_rot_status = true ;
+  //   collision with ground
+  // radius = radius of angryobject
+    // cout <<collisiony+newy<<" , "<<collisionx+newx<<endl;
+    if((collisiony + newy ) < 0.005f )
     {
-        if(uy < 0){
-            uy -= gravity*o;
+        uy = vy;
+        ux = vx ;
+        // if(uy < 0){
             uy *= -1 ;
-            collisiony = 0 ;
-            newy =0.05 ;
-        }
+            // collisiony = 0 ;
+            // newy =0.05 ;
+        // }
         ux /=1.5;
-        uy /=1.5 ;
+        uy /=1.5;
         collisionx +=newx;
         collisiony += newy;
         // newy = 0.005f;
         // newx = 0 ;
         o=0;
     }
-    if((collisiony + newy ) >= 4.9 && (collisiony + newy ) <= 5.25  && (collisionx + newx -3) >= -1.75 && (collisionx + newx -3) <= -0.45) {
-        uy -= gravity*o;
-        uy /=4 ;
+
+    // collision with left-most object
+    else if(((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= -1.70f && (collisionx + newx -3) <= -0.50f) {
+        uy = vy;
+        ux = vx ;
         uy *= -1 ;
-        collisiony += newy - 0.005f ;
+        uy /=1.3 ;
+        ux /=1.1;
+        collisiony += newy  ;
         collisionx += newx ;
         // direction = -9 ;
         // newy = -1.5f;
         o=0;
 
     }
+
+    int temp=0;
+    //   condition of stopping the ball
+      if(vx < 0.05 && vx > -0.05f){
+          temp++;
+      }
+      if(vy < 0.05 && vy > -0.05f){
+          temp++;
+      }
+
   //   condition of initalising the shooting control
-      if(ux<=0.09 && uy<=0.09)
+      if(temp==2 )
       {
           shoot=false;
-          bird1_rot_status = false;
+        //   bird3_rot_status =false;
       }
 }
 
@@ -829,7 +843,7 @@ void draw ()
   Matrices.model = glm::mat4(1.0f);
 
   // o defines time
-  o += 0.007;
+  o += 0.01;
   accelaration_func();
   move_func();
   collision_func();
@@ -947,7 +961,7 @@ void draw ()
   //camera_rotation_angle++; // Simulating camera rotation
   bird1_rotation = bird1_rotation + increments*bird1_rot_dir*bird1_rot_status;
   bird2_rotation = bird2_rotation + increments*bird2_rot_dir*bird2_rot_status;
-  bird3_rotation = bird3_rotation + increments*bird3_rot_dir*bird3_rot_status;
+  bird3_rotation = bird3_rotation + energy*bird3_rot_dir*bird3_rot_status;
   coins1_rotation = coins1_rotation + (increments+2)*coins1_rot_dir*coins1_rot_status;
   coins2_rotation = coins2_rotation + (increments+2)*coins2_rot_dir*coins2_rot_status;
   coins3_rotation = coins3_rotation + (increments+2)*coins3_rot_dir*coins3_rot_status;
