@@ -261,6 +261,8 @@ double direction =9 ;
 double radius=.30f ;  // radius of angryobject
 double moving_wheelx =0;
 double energy =0;
+double ex=0; // friction_coefficient at x axis
+double ey=0; // friction coefficient at y axis
 
 /* Executed when a regular key is pressed */
 void keyboardUp (unsigned char key, int x, int y)
@@ -625,6 +627,33 @@ void accelaration_func(){
 
 }
 
+void friction_coefficient(){
+    if((collisiony + newy ) < 0.005f) // ground
+            {
+                ex = 1.2f ;
+                ey = 1.5f ;
+            }
+        // left-most rectangle
+    else if(((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= -1.7f && (collisionx + newx -3) <= -0.50f)
+            {
+                ex = 1.2f;
+                ey =1.2f ;
+            }
+        // right-most rectangle
+    else if(((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= 2.4f && (collisionx + newx -3) <= 3.6f)
+            {
+                ex = 1.2f;
+                ey = 1.2f ;
+            }
+        // rough-ground rectangle
+    else if(((collisiony + newy -3) >= (-3.25f-radius ) && (collisiony + newy -3) <= (-2.99f+radius )) && (collisionx + newx -3) >= 0.7f && (collisionx + newx -3) <= 1.9f)
+        {
+            ex = 3.0f;
+            ey = 2.1f;
+        }
+
+}
+
 void move_func(){
       if(shoot == false)
       return ;
@@ -662,8 +691,8 @@ void collision_func(){
         ux = vx ;
         // collision effect
         uy *= -1 ;
-        ux /=1.5;
-        uy /=1.5;
+        ux /=ex;
+        uy /=ey;
         // saved current co-ordinates
         collisionx +=newx;
         collisiony += newy;
@@ -835,6 +864,7 @@ void draw ()
   o += 0.01;
   accelaration_func();
   move_func();
+  friction_coefficient();
   collision_func();
 
   glm::mat4 translatebird3 = glm::translate (glm::vec3(-3.00f + collisionx+newx , -3.00f + collisiony+newy , 0.0f)); // glTranslatef
@@ -962,7 +992,7 @@ void draw ()
   rectangle3_rotation = rectangle3_rotation + increments*rectangle3_rot_dir*rectangle3_rot_status;
   rectangle4_rotation = rectangle4_rotation + increments*rectangle4_rot_dir*rectangle4_rot_status;
   rectangle5_rotation = rectangle5_rotation + increments*rectangle5_rot_dir*rectangle5_rot_status;
-  canon_rotation = canon_rotation + (increments/5)*canon_rot_dir*canon_rot_status*-1;
+  canon_rotation = canon_rotation + (increments)*canon_rot_dir*canon_rot_status;
 }
 
 
@@ -1047,8 +1077,8 @@ void addGLUTMenus ()
 void initGL (int width, int height )
 {
 	// Create the models
-	create_angry_bird (0,0); // Generate the VAO, VBOs, vertices data & copy into the array buffer
 	createRectangle ();
+	create_angry_bird (0,0); // Generate the VAO, VBOs, vertices data & copy into the array buffer
     createcanon (2,0); // pointed at -3   .5,-3
     ground_rectangle();
     water_rectangle();
