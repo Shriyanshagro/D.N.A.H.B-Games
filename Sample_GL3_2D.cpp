@@ -643,50 +643,40 @@ void collision_func(){
     if(shoot == false)
     return ;
 
-    // REVIEW
-    // bird3_rot_status = true ;
-  //   collision with ground
+  //   collision in y-axis
   // radius = radius of angryobject
-    // cout <<collisiony+newy<<" , "<<collisionx+newx<<endl;
-    if((collisiony + newy ) < 0.005f )
+    if((collisiony + newy ) < 0.005f // ground
+        ||
+        // left-most rectangle
+        (((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= -1.7f && (collisionx + newx -3) <= -0.50f)
+        ||
+        // right-most rectangle
+        (((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= 2.4f && (collisionx + newx -3) <= 3.6f)
+        ||
+        // rough-ground rectangle
+        (((collisiony + newy -3) >= (-3.25f-radius ) && (collisiony + newy -3) <= (-2.99f+radius )) && (collisionx + newx -3) >= 0.7f && (collisionx + newx -3) <= 1.9f)
+
+      )
     {
         uy = vy;
         ux = vx ;
-        // if(uy < 0){
-            uy *= -1 ;
-            // collisiony = 0 ;
-            // newy =0.05 ;
-        // }
+        // collision effect
+        uy *= -1 ;
         ux /=1.5;
         uy /=1.5;
+        // saved current co-ordinates
         collisionx +=newx;
         collisiony += newy;
-        // newy = 0.005f;
-        // newx = 0 ;
-        o=0;
-    }
-
-    // collision with left-most object
-    else if(((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= -1.70f && (collisionx + newx -3) <= -0.50f) {
-        uy = vy;
-        ux = vx ;
-        uy *= -1 ;
-        uy /=1.3 ;
-        ux /=1.1;
-        collisiony += newy  ;
-        collisionx += newx ;
-        // direction = -9 ;
-        // newy = -1.5f;
-        o=0;
-
+        o=0; // time initialised to zero , new projectile started
     }
 
     int temp=0;
+
     //   condition of stopping the ball
-      if(vx < 0.05 && vx > -0.05f){
+      if(vx < 0.01 && vx > -0.01f){
           temp++;
       }
-      if(vy < 0.05 && vy > -0.05f){
+      if(vy < 0.01 && vy > -0.01f){
           temp++;
       }
 
@@ -694,7 +684,6 @@ void collision_func(){
       if(temp==2 )
       {
           shoot=false;
-        //   bird3_rot_status =false;
       }
 }
 
@@ -860,7 +849,7 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(bird3);
 
-  // rectangle
+  // rectangle , left-up most
   Matrices.model = glm::mat4(1.0f);
 
   glm::mat4 translateRectangle = glm::translate (glm::vec3(-1.7, 2, 0));        // glTranslatef
@@ -872,7 +861,7 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(rectangle);
 
-  // rectangle 2
+  // rectangle 2 , right-up most
   Matrices.model = glm::mat4(1.0f);
 
   glm::mat4 translateRectangle2 = glm::translate (glm::vec3(2.4, 2, 0));        // glTranslatef
@@ -884,7 +873,7 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(rectangle2);
 
-  // rectangle3
+  // rectangle3 , rough-ground
   Matrices.model = glm::mat4(1.0f);
 
   glm::mat4 translateRectangle3 = glm::translate (glm::vec3(0.7, -3.2, 0));        // glTranslatef
@@ -896,7 +885,7 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(rectangle3);
 
-  // rectangle4
+  // rectangle4 , water base
   Matrices.model = glm::mat4(1.0f);
 
   glm::mat4 translateRectangle4 = glm::translate (glm::vec3(2, 0, 0));        // glTranslatef
@@ -907,7 +896,7 @@ void draw ()
 
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(rectangle4);
-  // rectangle5
+  // rectangle5 , ground
   Matrices.model = glm::mat4(1.0f);
 
   glm::mat4 translateRectangle5 = glm::translate (glm::vec3(-1.7, -3.4, 0));        // glTranslatef
