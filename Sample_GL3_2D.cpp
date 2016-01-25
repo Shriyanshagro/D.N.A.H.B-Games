@@ -258,11 +258,23 @@ double vy =0;
 double finalx =0 ;
 double finaly =0 ;
 double direction =9 ;
-double radius=.30f ;  // radius of angryobject
 double moving_wheelx =0;
 double energy =0;
 double ex=0; // friction_coefficient at x axis
 double ey=0; // friction coefficient at y axis
+double radius_coins=.10f; // radius of angry coins
+double radius_object=.30f ;  // radius of angryobject
+double centerx_coin[7] = {0,2,3.8f,-1.55f,-0.7f,3.0f,2.5f};
+double centery_coin[7] = {0,-3.1f,-3.1f,2.3f,2.3f,2.3f,0};
+// coin1 , beside ground block
+// coin2 ,at last of ground
+// coin3 , up-left most
+// coin4 up-left second coin
+// coin5 up-right most coin
+// coin6 , inside water
+double score=0;
+bool flag_coin[7] = {true,true,true,true,true,true,true} ;
+
 
 /* Executed when a regular key is pressed */
 void keyboardUp (unsigned char key, int x, int y)
@@ -271,6 +283,7 @@ void keyboardUp (unsigned char key, int x, int y)
         case 'Q':
         case 'q':
         case 27: //ESC
+            cout<<score<<endl;
             exit (0);
         default:
             break;
@@ -318,7 +331,7 @@ void keyboardDown (unsigned char key, int x, int y)
             vx=0;
             uy = power*(sin(theta));
             vy =0;
-            bird1_rot_status = true ;
+            // flag_coin[6] = {true,true,true,true,true,true};
             o=0;
         // }
         break;
@@ -419,13 +432,13 @@ void create_angry_bird (GLdouble centrex,GLdouble centrey)
     // adds point to the vertex_buffer array
 
     hexTheta = TWO_PI * 0/40;
-    x = centrex + radius * cos(hexTheta);
-    y = centrey + radius * sin(hexTheta);
+    x = centrex + radius_object * cos(hexTheta);
+    y = centrey + radius_object * sin(hexTheta);
     add(centrex,centrey);
     add(x,y);
     hexTheta = TWO_PI * 1/20;
-    x = centrex + radius * cos(hexTheta);
-    y = centrey + radius * sin(hexTheta);
+    x = centrex + radius_object * cos(hexTheta);
+    y = centrey + radius_object * sin(hexTheta);
     add(x,y);
     previousy = y;
     previousx = x;
@@ -436,8 +449,8 @@ void create_angry_bird (GLdouble centrex,GLdouble centrey)
     {
         hexTheta = TWO_PI * j/20;
         // defining the new vertices
-        x = centrex + radius * cos(hexTheta);
-        y = centrey + radius * sin(hexTheta);
+        x = centrex + radius_object * cos(hexTheta);
+        y = centrey + radius_object * sin(hexTheta);
         // assigining vertices to new triangle
         add(centrex,centrey);
         add(previousx,previousy);
@@ -458,17 +471,17 @@ void create_angry_coins (GLdouble centrex,GLdouble centrey)
   /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
 
     const double TWO_PI = 6.2831853;
-    GLdouble hexTheta,x,y,radius=.10,previousx,previousy;
+    GLdouble hexTheta,x,y,previousx,previousy;
     // adds point to the vertex_buffer array
 
     hexTheta = TWO_PI * 0;
-    x = centrex + radius * cos(hexTheta);
-    y = centrey + radius * sin(hexTheta);
+    x = centrex + radius_coins * cos(hexTheta);
+    y = centrey + radius_coins * sin(hexTheta);
     add_coins(centrex,centrey);
     add_coins(x,y);
     hexTheta = TWO_PI * 1/10;
-    x = centrex + radius * cos(hexTheta);
-    y = centrey + radius * sin(hexTheta);
+    x = centrex + radius_coins * cos(hexTheta);
+    y = centrey + radius_coins * sin(hexTheta);
     add_coins(x,y);
     previousy = y;
     previousx = x;
@@ -479,8 +492,8 @@ void create_angry_coins (GLdouble centrex,GLdouble centrey)
     {
         hexTheta = TWO_PI * j/10;
         // defining the new vertices
-        x = centrex + radius * cos(hexTheta);
-        y = centrey + radius * sin(hexTheta);
+        x = centrex + radius_coins * cos(hexTheta);
+        y = centrey + radius_coins * sin(hexTheta);
         // assigining vertices to new triangle
         add_coins(centrex,centrey);
         add_coins(previousx,previousy);
@@ -619,6 +632,17 @@ void ground_rectangle(){
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
 
+double calc_dist(GLdouble x1 , GLdouble x2 , GLdouble y1 , GLdouble y2){
+    double dist=0;
+
+    x1 = pow(x1-x2,2);
+    y1 = pow(y1-y2,2);
+    x1 += y1;
+    dist =sqrt(x1);
+
+    return dist;
+}
+
 void accelaration_func(){
 
     accelarationx = 0;
@@ -634,19 +658,19 @@ void friction_coefficient(){
                 ey = 1.5f ;
             }
         // left-most rectangle
-    else if(((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= -1.7f && (collisionx + newx -3) <= -0.50f)
+    else if(((collisiony + newy -3) >= (1.95f-radius_object ) && (collisiony + newy -3) <= (2.21f+radius_object )) && (collisionx + newx -3) >= -1.7f && (collisionx + newx -3) <= -0.50f)
             {
                 ex = 1.2f;
                 ey =1.2f ;
             }
         // right-most rectangle
-    else if(((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= 2.4f && (collisionx + newx -3) <= 3.6f)
+    else if(((collisiony + newy -3) >= (1.95f-radius_object ) && (collisiony + newy -3) <= (2.21f+radius_object )) && (collisionx + newx -3) >= 2.4f && (collisionx + newx -3) <= 3.6f)
             {
                 ex = 1.2f;
                 ey = 1.2f ;
             }
         // rough-ground rectangle
-    else if(((collisiony + newy -3) >= (-3.25f-radius ) && (collisiony + newy -3) <= (-2.99f+radius )) && (collisionx + newx -3) >= 0.7f && (collisionx + newx -3) <= 1.9f)
+    else if(((collisiony + newy -3) >= (-3.25f-radius_object ) && (collisiony + newy -3) <= (-2.99f+radius_object )) && (collisionx + newx -3) >= 0.7f && (collisionx + newx -3) <= 1.9f)
         {
             ex = 3.0f;
             ey = 2.1f;
@@ -667,23 +691,41 @@ void move_func(){
 
 }
 
+void collect_coins(){
+
+    double dist=0,x,y;
+    x= collisionx+newx-3;
+    y= collisiony+newy-3;
+    for(int r=1;r<=6;r++)
+    {
+    dist = calc_dist(x,centerx_coin[r],y,centery_coin[r]);
+    if(dist<=(radius_coins+radius_object) && flag_coin[r]==true)
+        {
+            score++;
+            flag_coin[r]=false;
+            break;
+        }
+    }
+
+}
+
 void collision_func(){
 
     if(shoot == false)
     return ;
 
-  // radius = radius of angryobject
+  // radius_object = radius_object of angryobject
   //   collision in x-plane
     if((collisiony + newy ) < 0.005f // ground
         ||
         // left-most rectangle
-        (((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= (-1.7f-radius+0.08) && (collisionx + newx -3) <= (-0.50f+radius-0.08))
+        (((collisiony + newy -3) >= (1.95f-radius_object ) && (collisiony + newy -3) <= (2.21f+radius_object )) && (collisionx + newx -3) >= (-1.7f-radius_object+0.08) && (collisionx + newx -3) <= (-0.50f+radius_object-0.08))
         ||
         // right-most rectangle
-        (((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= (2.4f-radius+0.08) && (collisionx + newx -3) <= (3.6f+radius-0.08))
+        (((collisiony + newy -3) >= (1.95f-radius_object ) && (collisiony + newy -3) <= (2.21f+radius_object )) && (collisionx + newx -3) >= (2.4f-radius_object+0.08) && (collisionx + newx -3) <= (3.6f+radius_object-0.08))
         ||
         // rough-ground rectangle
-        (((collisiony + newy -3) >= (-3.25f-radius ) && (collisiony + newy -3) <= (-2.99f+radius )) && (collisionx + newx -3) >= 0.7f && (collisionx + newx -3) <= 1.9f)
+        (((collisiony + newy -3) >= (-3.25f-radius_object ) && (collisiony + newy -3) <= (-2.99f+radius_object )) && (collisionx + newx -3) >= 0.7f && (collisionx + newx -3) <= 1.9f)
 
       )
     {
@@ -701,7 +743,7 @@ void collision_func(){
 
     // collision at y-plane
     else if( // rough-ground rectangle
-        (((collisiony + newy -3) >= (-3.25f-radius ) && (collisiony + newy -3) <= (-2.99f+radius )) && (collisionx + newx -3) >= 0.7f-radius && (collisionx + newx -3) <= 0.7f)
+        (((collisiony + newy -3) >= (-3.25f-radius_object ) && (collisiony + newy -3) <= (-2.99f+radius_object )) && (collisionx + newx -3) >= 0.7f-radius_object && (collisionx + newx -3) <= 0.7f)
 
       )
     {
@@ -829,7 +871,7 @@ void draw ()
   // coins1 , beside ground block
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins1 = glm::translate (glm::vec3(2.0f, -3.10f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins1 = glm::translate (glm::vec3(centerx_coin[1] , centery_coin[1], 0.0f)); // glTranslatef
   glm::mat4 rotatecoins1 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins1Transform = translatecoins1 ;
   Matrices.model *= translatecoins1 * rotatecoins1;
@@ -839,12 +881,13 @@ void draw ()
   glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
   // draw3DObject draws the VAO given to it using current MVP matrix
+  if(flag_coin[1]==true)
   draw3DObject(coins1);
 
   // coins2 ,at last of ground
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins2 = glm::translate (glm::vec3(3.8f, -3.1f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins2 = glm::translate (glm::vec3(centerx_coin[2] ,centery_coin[2], 0.0f)); // glTranslatef
   glm::mat4 rotatecoins2 = glm::rotate((float)(coins2_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins2Transform = translatecoins2 ;
   Matrices.model *= translatecoins2 * rotatecoins2;
@@ -854,12 +897,13 @@ void draw ()
   glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
   // draw3DObject draws the VAO given to it using current MVP matrix
+  if(flag_coin[2]==true)
   draw3DObject(coins2);
 
   // coins3 , up-left most
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins3 = glm::translate (glm::vec3(-1.55f, 2.3f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins3 = glm::translate (glm::vec3(centerx_coin[3], centery_coin[3], 0.0f)); // glTranslatef
   glm::mat4 rotatecoins3 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins3Transform = translatecoins3 ;
   Matrices.model *= translatecoins3 * rotatecoins3;
@@ -869,12 +913,13 @@ void draw ()
   glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
   // draw3DObject draws the VAO given to it using current MVP matrix
+  if(flag_coin[3]==true)
   draw3DObject(coins3);
 
   // coins4 up-left second coin
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins4 = glm::translate (glm::vec3(-0.7f, 2.3f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins4 = glm::translate (glm::vec3(centerx_coin[4], centery_coin[4], 0.0f)); // glTranslatef
   glm::mat4 rotatecoins4 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins4Transform = translatecoins4 ;
   Matrices.model *= translatecoins4 * rotatecoins4;
@@ -884,12 +929,13 @@ void draw ()
   glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
   // draw3DObject draws the VAO given to it using current MVP matrix
+  if(flag_coin[4]==true)
   draw3DObject(coins4);
 
   // coins5 up-right most coin
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins5 = glm::translate (glm::vec3(3.0f, 2.3f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins5 = glm::translate (glm::vec3(centerx_coin[5], centery_coin[5], 0.0f)); // glTranslatef
   glm::mat4 rotatecoins5 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins5Transform = translatecoins5 ;
   Matrices.model *= translatecoins5 * rotatecoins5;
@@ -899,12 +945,13 @@ void draw ()
   glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
   // draw3DObject draws the VAO given to it using current MVP matrix
+  if(flag_coin[5]==true)
   draw3DObject(coins5);
 
   // coins6 , insude water
   Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins6 = glm::translate (glm::vec3(2.5f, 0.0f, 0.0f)); // glTranslatef
+  glm::mat4 translatecoins6 = glm::translate (glm::vec3(centerx_coin[6], centery_coin[6], 0.0f)); // glTranslatef
   glm::mat4 rotatecoins6 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
   glm::mat4 coins6Transform = translatecoins6 ;
   Matrices.model *= translatecoins6 * rotatecoins6;
@@ -914,9 +961,8 @@ void draw ()
   glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
   // draw3DObject draws the VAO given to it using current MVP matrix
+  if(flag_coin[6]==true)
   draw3DObject(coins6);
-
-
 
   // bird3
 
@@ -926,6 +972,7 @@ Matrices.model = glm::mat4(1.0f);
 o += 0.01;
 accelaration_func();
 move_func();
+collect_coins();
 friction_coefficient();
 collision_func();
 
@@ -997,12 +1044,12 @@ glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
   bird1_rotation = bird1_rotation + increments*bird1_rot_dir*bird1_rot_status;
   bird2_rotation = bird2_rotation + increments*bird2_rot_dir*bird2_rot_status;
   bird3_rotation = bird3_rotation + energy*bird3_rot_dir*bird3_rot_status;
-  coins1_rotation = coins1_rotation + (increments+2)*coins1_rot_dir*coins1_rot_status;
-  coins2_rotation = coins2_rotation + (increments+2)*coins2_rot_dir*coins2_rot_status;
-  coins3_rotation = coins3_rotation + (increments+2)*coins3_rot_dir*coins3_rot_status;
-  coins4_rotation = coins4_rotation + (increments+2)*coins4_rot_dir*coins4_rot_status;
-  coins5_rotation = coins5_rotation + (increments+2)*coins5_rot_dir*coins5_rot_status;
-  coins6_rotation = coins6_rotation + (increments+2)*coins6_rot_dir*coins6_rot_status;
+  coins1_rotation = coins1_rotation + (increments+5)*coins1_rot_dir*coins1_rot_status;
+  coins2_rotation = coins2_rotation + (increments+5)*coins2_rot_dir*coins2_rot_status;
+  coins3_rotation = coins3_rotation + (increments+5)*coins3_rot_dir*coins3_rot_status;
+  coins4_rotation = coins4_rotation + (increments+5)*coins4_rot_dir*coins4_rot_status;
+  coins5_rotation = coins5_rotation + (increments+5)*coins5_rot_dir*coins5_rot_status;
+  coins6_rotation = coins6_rotation + (increments+5)*coins6_rot_dir*coins6_rot_status;
   rectangle_rotation = rectangle_rotation + increments*rectangle_rot_dir*rectangle_rot_status;
   rectangle2_rotation = rectangle2_rotation + increments*rectangle2_rot_dir*rectangle2_rot_status;
   rectangle3_rotation = rectangle3_rotation + increments*rectangle3_rot_dir*rectangle3_rot_status;
