@@ -672,15 +672,15 @@ void collision_func(){
     if(shoot == false)
     return ;
 
-  //   collision in y-axis
   // radius = radius of angryobject
+  //   collision in x-plane
     if((collisiony + newy ) < 0.005f // ground
         ||
         // left-most rectangle
-        (((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= -1.7f && (collisionx + newx -3) <= -0.50f)
+        (((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= (-1.7f-radius+0.08) && (collisionx + newx -3) <= (-0.50f+radius-0.08))
         ||
         // right-most rectangle
-        (((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= 2.4f && (collisionx + newx -3) <= 3.6f)
+        (((collisiony + newy -3) >= (1.95f-radius ) && (collisiony + newy -3) <= (2.21f+radius )) && (collisionx + newx -3) >= (2.4f-radius+0.08) && (collisionx + newx -3) <= (3.6f+radius-0.08))
         ||
         // rough-ground rectangle
         (((collisiony + newy -3) >= (-3.25f-radius ) && (collisiony + newy -3) <= (-2.99f+radius )) && (collisionx + newx -3) >= 0.7f && (collisionx + newx -3) <= 1.9f)
@@ -691,6 +691,24 @@ void collision_func(){
         ux = vx ;
         // collision effect
         uy *= -1 ;
+        ux /=ex;
+        uy /=ey;
+        // saved current co-ordinates
+        collisionx +=newx;
+        collisiony += newy;
+        o=0; // time initialised to zero , new projectile started
+    }
+
+    // collision at y-plane
+    else if( // rough-ground rectangle
+        (((collisiony + newy -3) >= (-3.25f-radius ) && (collisiony + newy -3) <= (-2.99f+radius )) && (collisionx + newx -3) >= 0.7f-radius && (collisionx + newx -3) <= 0.7f)
+
+      )
+    {
+        uy = vy;
+        ux = vx ;
+        // collision effect
+        ux *= -1 ;
         ux /=ex;
         uy /=ey;
         // saved current co-ordinates
@@ -710,8 +728,7 @@ void collision_func(){
       }
 
   //   condition of initalising the shooting control
-      if(temp==2 )
-      {
+      if(temp==2 ){
           shoot=false;
       }
 }
@@ -748,6 +765,66 @@ void draw ()
 
   // Load identity to model matrix
   /* Render your scene */
+
+
+  // rectangle , left-up most
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translateRectangle = glm::translate (glm::vec3(-1.7, 2, 0));        // glTranslatef
+  glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle * rotateRectangle);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle);
+
+  // rectangle 2 , right-up most
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translateRectangle2 = glm::translate (glm::vec3(2.4, 2, 0));        // glTranslatef
+  glm::mat4 rotateRectangle2 = glm::rotate((float)(rectangle2_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle2 * rotateRectangle2);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle2);
+
+  // rectangle3 , rough-ground
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translateRectangle3 = glm::translate (glm::vec3(0.7, -3.2, 0));        // glTranslatef
+  glm::mat4 rotateRectangle3 = glm::rotate((float)(rectangle3_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle3 * rotateRectangle3);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle3);
+
+  // rectangle4 , water base
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translateRectangle4 = glm::translate (glm::vec3(2, 0, 0));        // glTranslatef
+  glm::mat4 rotateRectangle4 = glm::rotate((float)(rectangle4_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle4 * rotateRectangle4);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle4);
+  // rectangle5 , ground
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translateRectangle5 = glm::translate (glm::vec3(-1.7, -3.4, 0));        // glTranslatef
+  glm::mat4 rotateRectangle5 = glm::rotate((float)(rectangle5_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle5 * rotateRectangle5);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle5);
 
   // coins1 , beside ground block
   Matrices.model = glm::mat4(1.0f);
@@ -840,117 +917,45 @@ void draw ()
   draw3DObject(coins6);
 
 
-  // bird2
-  Matrices.model = glm::mat4(1.0f);
+
+  // bird3
+
+Matrices.model = glm::mat4(1.0f);
+
+// o defines time
+o += 0.01;
+accelaration_func();
+move_func();
+friction_coefficient();
+collision_func();
+
+glm::mat4 translatebird3 = glm::translate (glm::vec3(-3.00f + collisionx+newx , -3.00f + collisiony+newy , 0.0f)); // glTranslatef
+glm::mat4 rotatebird3 = glm::rotate((float)((bird3_rotation+20)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+glm::mat4 bird3Transform = translatebird3 ;
+Matrices.model *= translatebird3 * rotatebird3;
+MVP = VP * Matrices.model; // MVP = p * V * M
+
+//  Don't change unless you are sure!!
+glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+// draw3DObject draws the VAO given to it using current MVP matrix
+draw3DObject(bird3);
+
+// bird2
+Matrices.model = glm::mat4(1.0f);
 
 
-  glm::mat4 translatebird2 = glm::translate (glm::vec3(-3.0f, -3.0f, 0.0f)); // glTranslatef
-  glm::mat4 rotatebird2 = glm::rotate((float)(bird2_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-  glm::mat4 bird2Transform = translatebird2 ;
-  Matrices.model *= translatebird2 * rotatebird2;
-  MVP = VP * Matrices.model; // MVP = p * V * M
+glm::mat4 translatebird2 = glm::translate (glm::vec3(-3.0f, -3.0f, 0.0f)); // glTranslatef
+glm::mat4 rotatebird2 = glm::rotate((float)(bird2_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+glm::mat4 bird2Transform = translatebird2 ;
+Matrices.model *= translatebird2 * rotatebird2;
+MVP = VP * Matrices.model; // MVP = p * V * M
 
-  //  Don't change unless you are sure!!
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+//  Don't change unless you are sure!!
+glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(bird2);
-
-    // bird3
-
-  Matrices.model = glm::mat4(1.0f);
-
-  // o defines time
-  o += 0.01;
-  accelaration_func();
-  move_func();
-  friction_coefficient();
-  collision_func();
-
-  glm::mat4 translatebird3 = glm::translate (glm::vec3(-3.00f + collisionx+newx , -3.00f + collisiony+newy , 0.0f)); // glTranslatef
-  glm::mat4 rotatebird3 = glm::rotate((float)((bird3_rotation+20)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-  glm::mat4 bird3Transform = translatebird3 ;
-  Matrices.model *= translatebird3 * rotatebird3;
-  MVP = VP * Matrices.model; // MVP = p * V * M
-
-  //  Don't change unless you are sure!!
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(bird3);
-
-  // rectangle , left-up most
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translateRectangle = glm::translate (glm::vec3(-1.7, 2, 0));        // glTranslatef
-  glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
-  Matrices.model *= (translateRectangle * rotateRectangle);
-  MVP = VP * Matrices.model;
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(rectangle);
-
-  // rectangle 2 , right-up most
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translateRectangle2 = glm::translate (glm::vec3(2.4, 2, 0));        // glTranslatef
-  glm::mat4 rotateRectangle2 = glm::rotate((float)(rectangle2_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
-  Matrices.model *= (translateRectangle2 * rotateRectangle2);
-  MVP = VP * Matrices.model;
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(rectangle2);
-
-  // rectangle3 , rough-ground
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translateRectangle3 = glm::translate (glm::vec3(0.7, -3.2, 0));        // glTranslatef
-  glm::mat4 rotateRectangle3 = glm::rotate((float)(rectangle3_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
-  Matrices.model *= (translateRectangle3 * rotateRectangle3);
-  MVP = VP * Matrices.model;
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(rectangle3);
-
-  // rectangle4 , water base
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translateRectangle4 = glm::translate (glm::vec3(2, 0, 0));        // glTranslatef
-  glm::mat4 rotateRectangle4 = glm::rotate((float)(rectangle4_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
-  Matrices.model *= (translateRectangle4 * rotateRectangle4);
-  MVP = VP * Matrices.model;
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(rectangle4);
-  // rectangle5 , ground
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translateRectangle5 = glm::translate (glm::vec3(-1.7, -3.4, 0));        // glTranslatef
-  glm::mat4 rotateRectangle5 = glm::rotate((float)(rectangle5_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
-  Matrices.model *= (translateRectangle5 * rotateRectangle5);
-  MVP = VP * Matrices.model;
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(rectangle5);
-
-
-
-  // canon
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translatecanon = glm::translate (glm::vec3(-3,-3, 0));        // glTranslatef
-  glm::mat4 rotatecanon = glm::rotate((float)((canon_rotation)*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (0,0,1)
-  Matrices.model *= (translatecanon * rotatecanon);
-  MVP = VP * Matrices.model;
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(canon);
+// draw3DObject draws the VAO given to it using current MVP matrix
+    draw3DObject(bird2);
 
   // bird1
   Matrices.model = glm::mat4(1.0f);
@@ -970,6 +975,17 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(bird1);
 
+  // canon
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translatecanon = glm::translate (glm::vec3(-3,-3, 0));        // glTranslatef
+  glm::mat4 rotatecanon = glm::rotate((float)((canon_rotation)*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (0,0,1)
+  Matrices.model *= (translatecanon * rotatecanon);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(canon);
 
   // Swap the frame buffers
   glutSwapBuffers ();
