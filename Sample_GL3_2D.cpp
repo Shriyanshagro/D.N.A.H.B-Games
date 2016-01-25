@@ -227,7 +227,7 @@ double collisionx = 0;
 double collisiony = 0;
 double accelarationx = 0;
 double accelarationy =0 ;
-double gravity = 10 ;
+double gravity = -10 ;
 double water_friction = 0.5;
 double ground_friction = 0.2;
 double ux =0 ;
@@ -238,7 +238,7 @@ double direction =9 ;
 double radius=.30f ;  // radius of angryobject
 
 /* Executed when a regular key is pressed */
-void keyboardDown (unsigned char key, int x, int y)
+void keyboardUp (unsigned char key, int x, int y)
 {
     switch (key) {
         case 'Q':
@@ -251,7 +251,7 @@ void keyboardDown (unsigned char key, int x, int y)
 }
 
 /* Executed when a regular key is released */
-void keyboardUp (unsigned char key, int x, int y)
+void keyboardDown (unsigned char key, int x, int y)
 {
     switch (key) {
         case 'c':
@@ -260,10 +260,12 @@ void keyboardUp (unsigned char key, int x, int y)
             break;
         case 'a':
         case 'A':
+            if(canon_rotation >=3)
             canon_rotation += -3;
         break;
         case 'd':
         case 'D':
+            if(canon_rotation <=87)
             canon_rotation += 3;
         break;
         case 'w':
@@ -488,16 +490,16 @@ void accelaration_func(){
 
 void move_func(){
     // defining postion of ground
-    if (collisiony+newy <0)
-    {
-        shoot =false;
-    }
+    // if (collisiony+newy <0)
+    // {
+    //     shoot =false;
+    // }
 
       if(shoot == false)
       return ;
 
-      newx = ux*o - accelarationx*o*o*2;
-      newy = uy*o - accelarationy*o*o/2;
+      newx = ux*o + accelarationx*o*o*2;
+      newy = uy*o + accelarationy*o*o/2;
 
 }
 
@@ -506,26 +508,20 @@ void collision_func(){
     if(shoot == false)
     return ;
 
-  //   condition of stopping the ball
-    if(ux < 0.09){
-        ux=0;
-    }
-    else if(uy < 0.09){
-        uy =0 ;
-    }
     // REVIEW
 
   //   collision with ground
-  // radius of angryobject
+  // radius = radius of angryobject
     cout <<collisiony+newy<<" , "<<collisionx+newx<<endl;
     if((collisiony + newy ) < 0.005f )
     {
-        uy -= gravity*o;
-        if(uy < 0){
+        uy += accelarationy*o;
+        ux +=accelarationx*o ;
+        // if(uy < 0){
             uy *= -1 ;
-            collisiony = 0 ;
+            // collisiony = 0 ;
             // newy =0.05 ;
-        }
+        // }
         ux /=1.5;
         uy /=1.5 ;
         collisionx +=newx;
@@ -535,19 +531,31 @@ void collision_func(){
         o=0;
     }
     // collision with left-most object
-    else if((collisiony + newy ) >= 4.9 && (collisiony + newy ) <= 5.25  && (collisionx + newx -3) >= -1.75 && (collisionx + newx -3) <= -0.45) {
-        uy -= gravity*o;
-        uy /=4 ;
+    else if((collisiony + newy -3) >= (2.0f-radius )&& (collisiony + newy -3) <= (2.20f+radius ) && (collisionx + newx -3) >= -1.70f && (collisionx + newx -3) <= -0.50f) {
+        uy += accelarationy*o;
+        ux +=accelarationx*o;
+        uy /=1.5 ;
         uy *= -1 ;
-        collisiony += newy - 0.005f ;
+        ux /=1;
+        collisiony += newy  ;
         collisionx += newx ;
         // direction = -9 ;
         // newy = -1.5f;
         o=0;
 
     }
+
+    int temp=0;
+    //   condition of stopping the ball
+      if(ux < 0.05 && ux > -0.05f){
+          temp++;
+      }
+      if(uy < 0.05 && uy > -0.05f){
+          temp++;
+      }
+
   //   condition of initalising the shooting control
-      if(ux<=0.09 && uy<=0.09)
+      if(temp==2 && collisiony+newy <0.0005f)
       {
           shoot=false;
       }
