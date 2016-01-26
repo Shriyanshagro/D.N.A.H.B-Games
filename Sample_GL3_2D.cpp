@@ -189,7 +189,7 @@ void draw3DObject (struct VAO* vao)
 /**************************
  * Customizable functions *
  **************************/
-
+int num_coin =6 ;
 float camera_rotation_angle = 90;
 float bird1_rot_dir = 1;
 float bird2_rot_dir = -1;
@@ -199,22 +199,12 @@ float rectangle2_rot_dir = 1;
 float rectangle3_rot_dir = 1;
 float rectangle4_rot_dir = 1;
 float rectangle5_rot_dir = 1;
-float coins1_rot_dir = -1;
-float coins2_rot_dir = -1;
-float coins3_rot_dir = -1;
-float coins4_rot_dir = -1;
-float coins5_rot_dir = -1;
-float coins6_rot_dir = -1;
+float coins_rot_dir[7] = {-1};
 float canon_rot_dir = 1;
 bool bird1_rot_status = true;
 bool bird2_rot_status = false;
 bool bird3_rot_status = true;
-bool coins1_rot_status = true;
-bool coins2_rot_status = true;
-bool coins3_rot_status = true;
-bool coins4_rot_status = true;
-bool coins5_rot_status = true;
-bool coins6_rot_status = true;
+bool coins_rot_status[7] = {true,true,true,true,true,true,true};
 bool rectangle_rot_status = false;
 bool rectangle2_rot_status = false;
 bool rectangle3_rot_status = false;
@@ -229,12 +219,7 @@ float rectangle5_rotation = 0;
 float bird1_rotation = 0;
 float bird2_rotation = 0;
 float bird3_rotation = 0;
-float coins1_rotation = 0;
-float coins2_rotation = 0;
-float coins3_rotation = 0;
-float coins4_rotation = 0;
-float coins5_rotation = 0;
-float coins6_rotation = 0;
+float coins_rotation[7] = {0};
 float canon_rotation = 20;
 float power = 8 ;
 float power_meter = 8 ;
@@ -395,7 +380,7 @@ void reshapeWindow (int width, int height)
     Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
 }
 
-VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5,*coins1,*coins2,*coins3,*coins4,*coins5,*coins6;
+VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5,*coins[7];
 
 int i=0;
 GLfloat vertex_buffer_data [500] ;
@@ -503,12 +488,8 @@ void create_angry_coins (GLdouble centrex,GLdouble centrey)
     }
 
   // create3DObject creates and returns a handle to a VAO that can be used later
-  coins1 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
-  coins2 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
-  coins3 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
-  coins4 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
-  coins5 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
-  coins6 = create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
+  for(int r=1;r<=num_coin;r++)
+    coins[r]= create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
   i=0;
 }
 
@@ -696,7 +677,7 @@ void collect_coins(){
     double dist=0,x,y;
     x= collisionx+newx-3;
     y= collisiony+newy-3;
-    for(int r=1;r<=6;r++)
+    for(int r=1;r<=num_coin;r++)
     {
     dist = calc_dist(x,centerx_coin[r],y,centery_coin[r]);
     if(dist<=(radius_coins+radius_object) && flag_coin[r]==true)
@@ -869,103 +850,33 @@ void draw ()
   draw3DObject(rectangle5);
 
   // coins1 , beside ground block
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translatecoins1 = glm::translate (glm::vec3(centerx_coin[1] , centery_coin[1], 0.0f)); // glTranslatef
-  glm::mat4 rotatecoins1 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-  glm::mat4 coins1Transform = translatecoins1 ;
-  Matrices.model *= translatecoins1 * rotatecoins1;
-  MVP = VP * Matrices.model; // MVP = p * V * M
-
-  //  Don't change unless you are sure!!
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  if(flag_coin[1]==true)
-  draw3DObject(coins1);
-
   // coins2 ,at last of ground
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translatecoins2 = glm::translate (glm::vec3(centerx_coin[2] ,centery_coin[2], 0.0f)); // glTranslatef
-  glm::mat4 rotatecoins2 = glm::rotate((float)(coins2_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-  glm::mat4 coins2Transform = translatecoins2 ;
-  Matrices.model *= translatecoins2 * rotatecoins2;
-  MVP = VP * Matrices.model; // MVP = p * V * M
-
-  //  Don't change unless you are sure!!
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  if(flag_coin[2]==true)
-  draw3DObject(coins2);
-
   // coins3 , up-left most
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translatecoins3 = glm::translate (glm::vec3(centerx_coin[3], centery_coin[3], 0.0f)); // glTranslatef
-  glm::mat4 rotatecoins3 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-  glm::mat4 coins3Transform = translatecoins3 ;
-  Matrices.model *= translatecoins3 * rotatecoins3;
-  MVP = VP * Matrices.model; // MVP = p * V * M
-
-  //  Don't change unless you are sure!!
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  if(flag_coin[3]==true)
-  draw3DObject(coins3);
-
   // coins4 up-left second coin
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translatecoins4 = glm::translate (glm::vec3(centerx_coin[4], centery_coin[4], 0.0f)); // glTranslatef
-  glm::mat4 rotatecoins4 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-  glm::mat4 coins4Transform = translatecoins4 ;
-  Matrices.model *= translatecoins4 * rotatecoins4;
-  MVP = VP * Matrices.model; // MVP = p * V * M
-
-  //  Don't change unless you are sure!!
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  if(flag_coin[4]==true)
-  draw3DObject(coins4);
-
   // coins5 up-right most coin
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translatecoins5 = glm::translate (glm::vec3(centerx_coin[5], centery_coin[5], 0.0f)); // glTranslatef
-  glm::mat4 rotatecoins5 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-  glm::mat4 coins5Transform = translatecoins5 ;
-  Matrices.model *= translatecoins5 * rotatecoins5;
-  MVP = VP * Matrices.model; // MVP = p * V * M
-
-  //  Don't change unless you are sure!!
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  if(flag_coin[5]==true)
-  draw3DObject(coins5);
-
   // coins6 , insude water
-  Matrices.model = glm::mat4(1.0f);
 
-  glm::mat4 translatecoins6 = glm::translate (glm::vec3(centerx_coin[6], centery_coin[6], 0.0f)); // glTranslatef
-  glm::mat4 rotatecoins6 = glm::rotate((float)(coins1_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-  glm::mat4 coins6Transform = translatecoins6 ;
-  Matrices.model *= translatecoins6 * rotatecoins6;
-  MVP = VP * Matrices.model; // MVP = p * V * M
+  glm::mat4 translatecoins[num_coin+1],rotatecoins[num_coin+1],coinsTransform[num_coin+1];
+  for(int r=1;r<=num_coin;r++)
+  {
 
-  //  Don't change unless you are sure!!
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+      Matrices.model = glm::mat4(1.0f);
 
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  if(flag_coin[6]==true)
-  draw3DObject(coins6);
+       translatecoins[r] = glm::translate (glm::vec3(centerx_coin[r] , centery_coin[r], 0.0f)); // glTranslatef
+       rotatecoins[r] = glm::rotate((float)(coins_rotation[r]*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+       coinsTransform[r] = translatecoins[r] ;
+      Matrices.model *= translatecoins[r] * rotatecoins[r];
+      MVP = VP * Matrices.model; // MVP = p * V * M
 
-  // bird3
+      //  Don't change unless you are sure!!
+      glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
+      // draw3DObject draws the VAO given to it using current MVP matrix
+      if(flag_coin[r]==true)
+          draw3DObject(coins[r]);
+  }
+
+      // bird3
     Matrices.model = glm::mat4(1.0f);
 
     // o defines time
@@ -1044,12 +955,11 @@ void draw ()
   bird1_rotation = bird1_rotation + increments*bird1_rot_dir*bird1_rot_status;
   bird2_rotation = bird2_rotation + increments*bird2_rot_dir*bird2_rot_status;
   bird3_rotation = bird3_rotation + energy*bird3_rot_dir*bird3_rot_status;
-  coins1_rotation = coins1_rotation + (increments+5)*coins1_rot_dir*coins1_rot_status;
-  coins2_rotation = coins2_rotation + (increments+5)*coins2_rot_dir*coins2_rot_status;
-  coins3_rotation = coins3_rotation + (increments+5)*coins3_rot_dir*coins3_rot_status;
-  coins4_rotation = coins4_rotation + (increments+5)*coins4_rot_dir*coins4_rot_status;
-  coins5_rotation = coins5_rotation + (increments+5)*coins5_rot_dir*coins5_rot_status;
-  coins6_rotation = coins6_rotation + (increments+5)*coins6_rot_dir*coins6_rot_status;
+  for(int r=1;r<=num_coin;r++)
+  {
+      coins_rotation[r] = coins_rotation[r] -5 ;
+    //   + (increments+5)*coins_rot_dir[r]*coins_rot_status[r];
+  }
   rectangle_rotation = rectangle_rotation + increments*rectangle_rot_dir*rectangle_rot_status;
   rectangle2_rotation = rectangle2_rotation + increments*rectangle2_rot_dir*rectangle2_rot_status;
   rectangle3_rotation = rectangle3_rotation + increments*rectangle3_rot_dir*rectangle3_rot_status;
