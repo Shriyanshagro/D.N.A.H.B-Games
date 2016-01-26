@@ -449,11 +449,10 @@ void reshapeWindow (int width, int height)
     // Ortho projection for 2D views
     float x = -4.0f - zoom ;
     float y = 4.0f + zoom;
-    cout<<"df"<<endl;
     Matrices.projection = glm::ortho(x, y, x, y, 0.1f, 500.0f);
 }
 
-VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5,*coins[500];
+VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5,*rectangle6,*coins[500];
 // VAO coins[] = malloc(num_coin*sizeof(VAO));
 
 int i=0;
@@ -676,10 +675,10 @@ void water_rectangle(){
 
 void ground_rectangle(){
     const GLfloat vertex_buffer_data [] = {
-      -5,-1,0,
+      -8,-10,0,
       -5,0.2f,0,
-      7,-1,0,
-      7,-1,0,
+      7,-10,0,
+      7,-10,0,
       7,0.2f,0,
       -5,0.2f,0,
     };
@@ -700,6 +699,35 @@ void ground_rectangle(){
 
   rectangle5 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
 }
+
+
+void power_rectangle(){
+    const GLfloat vertex_buffer_data [] = {
+      -80,0.1,0,
+      -50,0.2f,0,
+      -1,0.1,0,
+      -1,0.1,0,
+      -1,0.2f,0,
+      -50,0.2f,0,
+    };
+
+    static const GLfloat color_buffer_data [] = {
+    //   0.647059,0.164706,0.164706, // color 1
+    //   0.647059,0.164706,0.164706, // color 1
+    //   0.647059,0.164706,0.164706, // color 1
+      0.4,0.2,0.2, // color 2
+      0.4,0.2,0.2, // color 2
+      0.4,0.2,0.2, // color 2
+      0.4,0.2,0.2, // color 2
+      0.4,0.2,0.2, // color 2
+      0.4,0.2,0.2, // color 2
+      };
+
+
+
+  rectangle6 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+}
+
 
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
@@ -1061,7 +1089,17 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(canon);
 
+  // rectangle6 , ground
+  Matrices.model = glm::mat4(1.0f);
 
+  glm::mat4 translateRectangle6 = glm::translate (glm::vec3(-1.7+ power_meter -8 , -3.4, 0));        // glTranslatef
+  // glm::mat4 rotateRectangle6 = glm::rotate((float)(rectangle6_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle6 );
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle6);
   // Swap the frame buffers
   glutSwapBuffers ();
 
@@ -1180,6 +1218,7 @@ void initGL (int width, int height )
     ground_rectangle();
     water_rectangle();
     create_angry_coins(0,0);
+    power_rectangle();
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
