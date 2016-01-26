@@ -966,42 +966,42 @@ void draw ()
 
   // bird3
 
-Matrices.model = glm::mat4(1.0f);
+    Matrices.model = glm::mat4(1.0f);
 
-// o defines time
-o += 0.01;
-accelaration_func();
-move_func();
-collect_coins();
-friction_coefficient();
-collision_func();
+    // o defines time
+    o += 0.01;
+    accelaration_func();
+    move_func();
+    collect_coins();
+    friction_coefficient();
+    collision_func();
 
-glm::mat4 translatebird3 = glm::translate (glm::vec3(-3.00f + collisionx+newx , -3.00f + collisiony+newy , 0.0f)); // glTranslatef
-glm::mat4 rotatebird3 = glm::rotate((float)((bird3_rotation+20)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-glm::mat4 bird3Transform = translatebird3 ;
-Matrices.model *= translatebird3 * rotatebird3;
-MVP = VP * Matrices.model; // MVP = p * V * M
+    glm::mat4 translatebird3 = glm::translate (glm::vec3(-3.00f + collisionx+newx , -3.00f + collisiony+newy , 0.0f)); // glTranslatef
+    glm::mat4 rotatebird3 = glm::rotate((float)((bird3_rotation+20)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+    glm::mat4 bird3Transform = translatebird3 ;
+    Matrices.model *= translatebird3 * rotatebird3;
+    MVP = VP * Matrices.model; // MVP = p * V * M
 
-//  Don't change unless you are sure!!
-glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    //  Don't change unless you are sure!!
+    glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-// draw3DObject draws the VAO given to it using current MVP matrix
-draw3DObject(bird3);
+    // draw3DObject draws the VAO given to it using current MVP matrix
+    draw3DObject(bird3);
 
-// bird2
-Matrices.model = glm::mat4(1.0f);
+    // bird2
+    Matrices.model = glm::mat4(1.0f);
 
 
-glm::mat4 translatebird2 = glm::translate (glm::vec3(-3.0f, -3.0f, 0.0f)); // glTranslatef
-glm::mat4 rotatebird2 = glm::rotate((float)(bird2_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
-glm::mat4 bird2Transform = translatebird2 ;
-Matrices.model *= translatebird2 * rotatebird2;
-MVP = VP * Matrices.model; // MVP = p * V * M
+    glm::mat4 translatebird2 = glm::translate (glm::vec3(-3.0f, -3.0f, 0.0f)); // glTranslatef
+    glm::mat4 rotatebird2 = glm::rotate((float)(bird2_rotation*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
+    glm::mat4 bird2Transform = translatebird2 ;
+    Matrices.model *= translatebird2 * rotatebird2;
+    MVP = VP * Matrices.model; // MVP = p * V * M
 
-//  Don't change unless you are sure!!
-glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    //  Don't change unless you are sure!!
+    glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-// draw3DObject draws the VAO given to it using current MVP matrix
+    // draw3DObject draws the VAO given to it using current MVP matrix
     draw3DObject(bird2);
 
   // bird1
