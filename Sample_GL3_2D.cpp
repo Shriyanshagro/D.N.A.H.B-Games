@@ -255,17 +255,8 @@ double ex=0; // friction_coefficient at x axis
 double ey=0; // friction coefficient at y axis
 double radius_coins=.10f; // radius of angry coins
 double radius_object=.30f ;  // radius of angryobject
-// cout<<
 double centerx_coin[500] ;
-// = {0,2,3.8f,-1.55f,-0.7f,3.0f,2.5f,0,1,-3.9,3.9,1.1 ,1.4 ,2.1 ,2 ,3.2 3.8 1.6 2.6 1.4 1.6 0 0 3.2 2.7 2.3 3 1.5 1.8 2.3 0 3.1 3.4 2.6 3.4 1.6 2.5 1.2 1.9 2.4 2 1.5 0.9 0.5 0.7 0.1 3.5 2.1 ,3.8 ,1.6};
 double centery_coin[500] ;
- // = {0,-3.1f,-3.1f,2.3f,2.3f,2.3f,0,0,1,+3.9,3.9};
-// coin1 , beside ground block
-// coin2 ,at last of ground
-// coin3 , up-left most
-// coin4 up-left second coin
-// coin5 up-right most coin
-// coin6 , inside water
 int score=0;
 bool flag_coin[500] ;
 double zoom =0 ;
@@ -275,6 +266,8 @@ float mousex=0;
 float mousey=0;
 Point *mousePos;
 int level=1;
+double trappy=0;
+double dir=1; // direction of trappy box
 
 void shoot_func(){
     shoot = true ;
@@ -649,23 +642,24 @@ void createRectangle ()
   rectangle3 = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
 }
 
+// trapping_box
 void water_rectangle(){
     const GLfloat vertex_buffer_data [] = {
-        0,0,0,
-        0,0.2f,0,
-        1.2f,0,0,
-        1.2f,0,0,
-        1.2f,0.2f,0,
-        0,0.2f,0,
+        0.4,0.3,0,
+        0.4,0.7,0,
+        0.8,0.3,0,
+        0.8,0.3,0,
+        0.4,0.7,0,
+        0.8,0.7,0,
     };
 
     static const GLfloat color_buffer_data [] = {
-      0.372549,0.623529,0.623529, // color 1
-      0.372549,0.623529,0.623529, // color 1
-      0.372549,0.623529,0.623529, // color 1
-      0.137255,0.556863,0.137255, // color 2
-      0.137255,0.556863,0.137255, // color 2
-      0.137255,0.556863,0.137255, // color 2
+      0.59,0.41,0.31, // color 1
+      0.59,0.41,0.31, // color 1
+      0.59,0.41,0.31, // color 1
+      0.59,0.41,0.31, // color 2
+      0.59,0.41,0.31, // color 2
+      0.59,0.41,0.31, // color 2
     };
 
 
@@ -675,12 +669,12 @@ void water_rectangle(){
 
 void ground_rectangle(){
     const GLfloat vertex_buffer_data [] = {
-      -8,-10,0,
-      -5,0.2f,0,
-      7,-10,0,
-      7,-10,0,
-      7,0.2f,0,
-      -5,0.2f,0,
+      -180,-10,0,
+      -180,0.2f,0,
+      170,-10,0,
+      170,-10,0,
+      170,0.2f,0,
+      -180,0.2f,0,
     };
 
     static const GLfloat color_buffer_data [] = {
@@ -703,12 +697,12 @@ void ground_rectangle(){
 
 void power_rectangle(){
     const GLfloat vertex_buffer_data [] = {
-      -80,0.1,0,
-      -50,0.2f,0,
+      -1800,0.1,0,
+      -1800,0.2f,0,
       -1,0.1,0,
       -1,0.1,0,
       -1,0.2f,0,
-      -50,0.2f,0,
+      -1800,0.2f,0,
     };
 
     static const GLfloat color_buffer_data [] = {
@@ -886,6 +880,25 @@ void collision_func(){
       }
 }
 
+void trapping_box(){
+    if(trappy>0.5 || trappy<-2.5)
+        dir*=-1;
+    trappy+=0.01*dir;
+    // trappy*=dir;
+    double object_x = -3+collisionx+newx;
+    double object_y = -3 + collisiony + newy ;
+    double dist =0 ;
+    double trappy_x= 0.6+2;
+    double trappy_y = 0.5+trappy;
+    dist = calc_dist(object_x,trappy_x,object_y,trappy_y);
+    if(dist< 0.5+radius_object)
+        {
+            cout<<"Oops , you got fired by the trappy box."<<endl;
+            exit_func();
+        }
+
+}
+
 void RenderString(float x, float y, void *font , string str, float r, float g, float b)
 {
 	char *c;
@@ -970,17 +983,6 @@ void draw ()
 
   RenderString(0,0,GLUT_BITMAP_TIMES_ROMAN_10,(string)"dsf",0,0,0);
 
-  // rectangle4 , water base
-  Matrices.model = glm::mat4(1.0f);
-
-  glm::mat4 translateRectangle4 = glm::translate (glm::vec3(2, 0, 0));        // glTranslatef
-  glm::mat4 rotateRectangle4 = glm::rotate((float)(rectangle4_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
-  Matrices.model *= (translateRectangle4 * rotateRectangle4);
-  MVP = VP * Matrices.model;
-  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-
-  // draw3DObject draws the VAO given to it using current MVP matrix
-  draw3DObject(rectangle4);
   // rectangle5 , ground
   Matrices.model = glm::mat4(1.0f);
 
@@ -1030,6 +1032,7 @@ void draw ()
     collect_coins();
     friction_coefficient();
     collision_func();
+    trapping_box();
 
     glm::mat4 translatebird3 = glm::translate (glm::vec3(-3.00f + collisionx+newx , -3.00f + collisiony+newy , 0.0f)); // glTranslatef
     glm::mat4 rotatebird3 = glm::rotate((float)((bird3_rotation+20)*M_PI/180.0f), glm::vec3(0,0,1));  // rotate about vector (1,0,0) , vec3 decides the axis about which it have to be rotated
@@ -1101,6 +1104,20 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(rectangle6);
   // Swap the frame buffers
+
+
+  // rectangle4 , water base
+  Matrices.model = glm::mat4(1.0f);
+
+  glm::mat4 translateRectangle4 = glm::translate (glm::vec3(2, trappy, 0));        // glTranslatef
+  glm::mat4 rotateRectangle4 = glm::rotate((float)(rectangle4_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+  Matrices.model *= (translateRectangle4 * rotateRectangle4);
+  MVP = VP * Matrices.model;
+  glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+  // draw3DObject draws the VAO given to it using current MVP matrix
+  draw3DObject(rectangle4);
+
   glutSwapBuffers ();
 
   // Increment angles
