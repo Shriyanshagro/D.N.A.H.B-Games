@@ -199,12 +199,12 @@ float rectangle2_rot_dir = 1;
 float rectangle3_rot_dir = 1;
 float rectangle4_rot_dir = 1;
 float rectangle5_rot_dir = 1;
-float coins_rot_dir[7] = {-1};
+float coins_rot_dir[50] ;
 float canon_rot_dir = 1;
 bool bird1_rot_status = true;
 bool bird2_rot_status = false;
 bool bird3_rot_status = true;
-bool coins_rot_status[7] = {true,true,true,true,true,true,true};
+bool coins_rot_status[50];
 bool rectangle_rot_status = false;
 bool rectangle2_rot_status = false;
 bool rectangle3_rot_status = false;
@@ -219,7 +219,7 @@ float rectangle5_rotation = 0;
 float bird1_rotation = 0;
 float bird2_rotation = 0;
 float bird3_rotation = 0;
-float coins_rotation[7] = {0};
+float coins_rotation[50];
 float canon_rotation = 20;
 float power = 8 ;
 float power_meter = 8 ;
@@ -249,16 +249,16 @@ double ex=0; // friction_coefficient at x axis
 double ey=0; // friction coefficient at y axis
 double radius_coins=.10f; // radius of angry coins
 double radius_object=.30f ;  // radius of angryobject
-double centerx_coin[7] = {0,2,3.8f,-1.55f,-0.7f,3.0f,2.5f};
-double centery_coin[7] = {0,-3.1f,-3.1f,2.3f,2.3f,2.3f,0};
+double centerx_coin[50] = {0,2,3.8f,-1.55f,-0.7f,3.0f,2.5f,0,0,0,0};
+double centery_coin[50] = {0,-3.1f,-3.1f,2.3f,2.3f,2.3f,0,0,0,0,0};
 // coin1 , beside ground block
 // coin2 ,at last of ground
 // coin3 , up-left most
 // coin4 up-left second coin
 // coin5 up-right most coin
 // coin6 , inside water
-double score=0;
-bool flag_coin[7] = {true,true,true,true,true,true,true} ;
+int score=5;
+bool flag_coin[50] ;
 
 
 /* Executed when a regular key is pressed */
@@ -380,7 +380,8 @@ void reshapeWindow (int width, int height)
     Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
 }
 
-VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5,*coins[7];
+VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5,*coins[50];
+// VAO coins[] = malloc(num_coin*sizeof(VAO));
 
 int i=0;
 GLfloat vertex_buffer_data [500] ;
@@ -488,8 +489,14 @@ void create_angry_coins (GLdouble centrex,GLdouble centrey)
     }
 
   // create3DObject creates and returns a handle to a VAO that can be used later
-  for(int r=1;r<=num_coin;r++)
-    coins[r]= create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
+  for(int r=1;r<=49;r++)
+    {
+        coins[r]= create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
+        flag_coin[r] = true ;
+        coins_rot_dir[r] = -1;
+        coins_rotation[r] = 0;
+        coins_rot_status[r] = true;
+    }
   i=0;
 }
 
@@ -683,10 +690,13 @@ void collect_coins(){
     if(dist<=(radius_coins+radius_object) && flag_coin[r]==true)
         {
             score++;
+            if((score%6)==0 && score!=0)
+                num_coin *=2;
             flag_coin[r]=false;
             break;
         }
     }
+    // cout<<num_coin<<endl;
 
 }
 
@@ -957,8 +967,7 @@ void draw ()
   bird3_rotation = bird3_rotation + energy*bird3_rot_dir*bird3_rot_status;
   for(int r=1;r<=num_coin;r++)
   {
-      coins_rotation[r] = coins_rotation[r] -5 ;
-    //   + (increments+5)*coins_rot_dir[r]*coins_rot_status[r];
+      coins_rotation[r] = coins_rotation[r] + (increments+5)*coins_rot_dir[r]*coins_rot_status[r];
   }
   rectangle_rotation = rectangle_rotation + increments*rectangle_rot_dir*rectangle_rot_status;
   rectangle2_rotation = rectangle2_rotation + increments*rectangle2_rot_dir*rectangle2_rot_status;
