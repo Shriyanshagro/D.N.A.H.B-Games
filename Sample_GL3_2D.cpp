@@ -2,7 +2,7 @@
 #include <cmath>
 #include <fstream>
 #include <vector>
-
+#include <string.h>
 #include <GL/glew.h>
 #include <GL/glu.h>
 #include <GL/freeglut.h>
@@ -24,6 +24,12 @@ struct VAO {
     int NumVertices;
 };
 typedef struct VAO VAO;
+
+struct Point{
+    float x;
+    float y;
+};
+typedef struct Point Point;
 
 struct GLMatrices {
 	glm::mat4 projection;
@@ -259,7 +265,31 @@ double centery_coin[50] = {0,-3.1f,-3.1f,2.3f,2.3f,2.3f,0,0,0,0,0};
 // coin6 , inside water
 int score=5;
 bool flag_coin[50] ;
+double zoom =0 ;
+float panx=0;
+float pany=0;
+float mousex=0;
+float mousey=0;
+Point *mousePos;
 
+void shoot_func(){
+    shoot = true ;
+    flying_time = -987;
+    theta = (canon_rotation)*M_PI/180.0f ;
+    power = power_meter ;
+    collisionx =0 ;
+    newy =0 ;
+    newx =0 ;
+    collisiony =0 ;
+    ux = power*cos(theta);
+    vx=0;
+    uy = power*(sin(theta));
+    vy =0;
+    // flag_coin[6] = {true,true,true,true,true,true};
+    o=0;
+    return;
+}
+void reshapeWindow(int width,int height);
 
 /* Executed when a regular key is pressed */
 void keyboardUp (unsigned char key, int x, int y)
@@ -279,10 +309,6 @@ void keyboardUp (unsigned char key, int x, int y)
 void keyboardDown (unsigned char key, int x, int y)
 {
     switch (key) {
-        case 'c':
-        case 'C':
-            rectangle_rot_status = !rectangle_rot_status;
-            break;
         case 'a':
         case 'A':
             if(canon_rotation >=3)
@@ -301,24 +327,8 @@ void keyboardDown (unsigned char key, int x, int y)
         case 'S':
             power_meter -=0.5f;
         break;
-        case 'm':
-        case 'M':
-            // if(shoot == false){
-            shoot = true ;
-            flying_time = -987;
-            theta = (canon_rotation)*M_PI/180.0f ;
-            power = power_meter ;
-            collisionx =0 ;
-            newy =0 ;
-            newx =0 ;
-            collisiony =0 ;
-            ux = power*cos(theta);
-            vx=0;
-            uy = power*(sin(theta));
-            vy =0;
-            // flag_coin[6] = {true,true,true,true,true,true};
-            o=0;
-        // }
+        case 32:
+            shoot_func();
         break;
         default:
             break;
@@ -333,6 +343,55 @@ void keyboardSpecialDown (int key, int x, int y)
 /* Executed when a special key is released */
 void keyboardSpecialUp (int key, int x, int y)
 {
+    switch(key){
+            case GLUT_KEY_UP:
+                if(zoom<=1)
+                {
+                    zoom+=0.2f;
+                    reshapeWindow(600,600);
+                }
+            break;
+            case GLUT_KEY_DOWN:
+            if(zoom>=-1)
+            {
+                zoom-=0.2f;
+                reshapeWindow(600,600);
+            }
+            break;
+            case GLUT_KEY_RIGHT:
+                if(panx<=35)
+                {
+                    panx+=3.5;
+                    reshapeWindow(600,600);
+                }
+            break;
+            case GLUT_KEY_LEFT:
+                if(panx>=-35)
+                {
+                    panx-=3.5;
+                    reshapeWindow(600,600);
+                }
+            break;
+            case 32:
+                // if(shoot == false){
+                shoot = true ;
+                flying_time = -987;
+                theta = (canon_rotation)*M_PI/180.0f ;
+                power = power_meter ;
+                collisionx =0 ;
+                newy =0 ;
+                newx =0 ;
+                collisiony =0 ;
+                ux = power*cos(theta);
+                vx=0;
+                uy = power*(sin(theta));
+                vy =0;
+                // flag_coin[6] = {true,true,true,true,true,true};
+                o=0;
+            // }
+            break;
+
+    }
 }
 
 /* Executed when a mouse button 'button' is put into state 'state'
@@ -341,15 +400,16 @@ void keyboardSpecialUp (int key, int x, int y)
 void mouseClick (int button, int state, int x, int y)
 {
     switch (button) {
-    //     case GLUT_LEFT_BUTTON:
-    //         if (state == GLUT_UP)
-    //             triangle_rot_dir *= -1;
-    //         break;
+        case GLUT_LEFT_BUTTON:
+            shoot_func();
+        break;
         case GLUT_RIGHT_BUTTON:
-            if (state == GLUT_UP) {
-                rectangle_rot_dir *= -1;
+            if(panx<=35)
+            {
+                panx+=3.5;
+                reshapeWindow(600,600);
             }
-            break;
+        break;
         default:
             break;
     }
@@ -368,7 +428,7 @@ void reshapeWindow (int width, int height)
 	GLfloat fov = 90.0f;
 
 	// sets the viewport of openGL renderer
-	glViewport (0, 0, (GLsizei) width, (GLsizei) height);
+	glViewport (0+panx, 0+pany, (GLsizei) width+5, (GLsizei) height);
 
 	// set the projection matrix as perspective/ortho
 	// Store the projection matrix in a variable for future use
@@ -377,7 +437,10 @@ void reshapeWindow (int width, int height)
     // Matrices.projection = glm::perspective (fov, (GLfloat) width / (GLfloat) height, 0.1f, 500.0f);
 
     // Ortho projection for 2D views
-    Matrices.projection = glm::ortho(-4.0f, 4.0f, -4.0f, 4.0f, 0.1f, 500.0f);
+    float x = -4.0f - zoom ;
+    float y = 4.0f + zoom;
+    cout<<"df"<<endl;
+    Matrices.projection = glm::ortho(x, y, x, y, 0.1f, 500.0f);
 }
 
 VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5,*coins[50];
@@ -769,6 +832,18 @@ void collision_func(){
       }
 }
 
+void RenderString(float x, float y, void *font , string str, float r, float g, float b)
+{
+	char *c;
+	glColor3f(r, g, b);
+	glShadeModel(GL_SMOOTH);
+	glRasterPos2f(x, y);
+  	for(string::iterator it = str.begin(); it!=str.end();it++)
+	{
+		glutBitmapCharacter(font, *it);
+	}
+}
+
 void draw ()
 {
   // clear the color and depth in the frame buffer
@@ -838,6 +913,8 @@ void draw ()
 
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(rectangle3);
+
+  RenderString(0,0,GLUT_BITMAP_TIMES_ROMAN_10,(string)"dsf",0,0,0);
 
   // rectangle4 , water base
   Matrices.model = glm::mat4(1.0f);
@@ -958,6 +1035,7 @@ void draw ()
   // draw3DObject draws the VAO given to it using current MVP matrix
   draw3DObject(canon);
 
+
   // Swap the frame buffers
   glutSwapBuffers ();
 
@@ -978,6 +1056,10 @@ void draw ()
   rectangle4_rotation = rectangle4_rotation + increments*rectangle4_rot_dir*rectangle4_rot_status;
   rectangle5_rotation = rectangle5_rotation + increments*rectangle5_rot_dir*rectangle5_rot_status;
   canon_rotation = canon_rotation + (increments)*canon_rot_dir*canon_rot_status;
+
+  // const char s='df';
+  // string str[] = "s++" ;
+
 }
 
 
@@ -1019,8 +1101,12 @@ void initGLUT (int& argc, char** argv, int width, int height)
     glutSpecialFunc (keyboardSpecialDown);
     glutSpecialUpFunc (keyboardSpecialUp);
 
+    // GetCursorPos(&mousePos);
+    // mousex = mousePos.x ;
+    // mousey =mousePos.y ;
     glutMouseFunc (mouseClick);
     glutMotionFunc (mouseMotion);
+
 
     // initGL(width, height);
     glutReshapeFunc (reshapeWindow);
@@ -1089,6 +1175,7 @@ void initGL (int width, int height )
 	cout << "VERSION: " << glGetString(GL_VERSION) << endl;
 	cout << "GLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 }
+
 
 int main (int argc, char** argv)
 {
