@@ -604,9 +604,12 @@ void ground_rectangle(){
     };
 
     static const GLfloat color_buffer_data [] = {
-      0.372549,0.623529,0.623529, // color 1
-      0.372549,0.623529,0.623529, // color 1
-      0.372549,0.623529,0.623529, // color 1
+    //   0.647059,0.164706,0.164706, // color 1
+    //   0.647059,0.164706,0.164706, // color 1
+    //   0.647059,0.164706,0.164706, // color 1
+      0.22,0.69,0.87, // color 2
+      0.22,0.69,0.87, // color 2
+      0.22,0.69,0.87, // color 2
       0.22,0.69,0.87, // color 2
       0.22,0.69,0.87, // color 2
       0.22,0.69,0.87, // color 2
@@ -1074,7 +1077,7 @@ void initGL (int width, int height )
 	reshapeWindow (width, height);
 
 	// Background color of the scene
-	glClearColor (0.56 , 0.56 , 0.56, 0.0f); // R, G, B, A
+	glClearColor (0.55,0.55,0.55, 0.0f); // R, G, B, A
 	glClearDepth (0.5f);
 
 	glEnable (GL_DEPTH_TEST);
