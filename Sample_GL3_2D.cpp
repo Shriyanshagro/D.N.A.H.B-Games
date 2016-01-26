@@ -205,12 +205,12 @@ float rectangle2_rot_dir = 1;
 float rectangle3_rot_dir = 1;
 float rectangle4_rot_dir = 1;
 float rectangle5_rot_dir = 1;
-float coins_rot_dir[50] ;
+float coins_rot_dir[500] ;
 float canon_rot_dir = 1;
 bool bird1_rot_status = true;
 bool bird2_rot_status = false;
 bool bird3_rot_status = true;
-bool coins_rot_status[50];
+bool coins_rot_status[500];
 bool rectangle_rot_status = false;
 bool rectangle2_rot_status = false;
 bool rectangle3_rot_status = false;
@@ -225,7 +225,7 @@ float rectangle5_rotation = 0;
 float bird1_rotation = 0;
 float bird2_rotation = 0;
 float bird3_rotation = 0;
-float coins_rotation[50];
+float coins_rotation[500];
 float canon_rotation = 20;
 float power = 8 ;
 float power_meter = 8 ;
@@ -255,22 +255,26 @@ double ex=0; // friction_coefficient at x axis
 double ey=0; // friction coefficient at y axis
 double radius_coins=.10f; // radius of angry coins
 double radius_object=.30f ;  // radius of angryobject
-double centerx_coin[50] = {0,2,3.8f,-1.55f,-0.7f,3.0f,2.5f,0,0,0,0};
-double centery_coin[50] = {0,-3.1f,-3.1f,2.3f,2.3f,2.3f,0,0,0,0,0};
+// cout<<
+double centerx_coin[500] ;
+// = {0,2,3.8f,-1.55f,-0.7f,3.0f,2.5f,0,1,-3.9,3.9,1.1 ,1.4 ,2.1 ,2 ,3.2 3.8 1.6 2.6 1.4 1.6 0 0 3.2 2.7 2.3 3 1.5 1.8 2.3 0 3.1 3.4 2.6 3.4 1.6 2.5 1.2 1.9 2.4 2 1.5 0.9 0.5 0.7 0.1 3.5 2.1 ,3.8 ,1.6};
+double centery_coin[500] ;
+ // = {0,-3.1f,-3.1f,2.3f,2.3f,2.3f,0,0,1,+3.9,3.9};
 // coin1 , beside ground block
 // coin2 ,at last of ground
 // coin3 , up-left most
 // coin4 up-left second coin
 // coin5 up-right most coin
 // coin6 , inside water
-int score=5;
-bool flag_coin[50] ;
+int score=0;
+bool flag_coin[500] ;
 double zoom =0 ;
 float panx=0;
 float pany=0;
 float mousex=0;
 float mousey=0;
 Point *mousePos;
+int level=1;
 
 void shoot_func(){
     shoot = true ;
@@ -289,8 +293,15 @@ void shoot_func(){
     o=0;
     return;
 }
+
 void reshapeWindow(int width,int height);
 
+void exit_func(){
+    cout<<"Your final Score is "<<score<<endl;
+    cout<<"Level = "<<level<<endl;
+    cout<<"Thanks For Playing"<<endl;
+    exit (0);
+}
 /* Executed when a regular key is pressed */
 void keyboardUp (unsigned char key, int x, int y)
 {
@@ -298,8 +309,7 @@ void keyboardUp (unsigned char key, int x, int y)
         case 'Q':
         case 'q':
         case 27: //ESC
-            cout<<score<<endl;
-            exit (0);
+            exit_func();
         default:
             break;
     }
@@ -316,7 +326,7 @@ void keyboardDown (unsigned char key, int x, int y)
         break;
         case 'd':
         case 'D':
-            if(canon_rotation <=87)
+            if(canon_rotation <177)
             canon_rotation += 3;
         break;
         case 'w':
@@ -443,7 +453,7 @@ void reshapeWindow (int width, int height)
     Matrices.projection = glm::ortho(x, y, x, y, 0.1f, 500.0f);
 }
 
-VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5,*coins[50];
+VAO *bird1,*bird2,*bird3,*canon, *rectangle , *rectangle2 , *rectangle3 , *rectangle4 ,*rectangle5,*coins[500];
 // VAO coins[] = malloc(num_coin*sizeof(VAO));
 
 int i=0;
@@ -551,14 +561,22 @@ void create_angry_coins (GLdouble centrex,GLdouble centrey)
         previousx = x;
     }
 
+    srand((unsigned)time(0));
   // create3DObject creates and returns a handle to a VAO that can be used later
-  for(int r=1;r<=49;r++)
+  for(int r=1;r<=490;r++)
     {
         coins[r]= create3DObject(GL_TRIANGLES, 30, vertex_buffer_data, color_buffer_data, GL_LINE);
         flag_coin[r] = true ;
         coins_rot_dir[r] = -1;
         coins_rotation[r] = 0;
         coins_rot_status[r] = true;
+        double temp1 = (rand()%78 -39);
+            temp1/= 10;
+        double temp2 = (rand()%60 -30);
+            temp2/= 10;
+        centerx_coin[r] =  temp1;
+        // cout<<centerx_coin[r]<<endl;
+        centery_coin[r] = temp2;
     }
   i=0;
 }
@@ -756,8 +774,16 @@ void collect_coins(){
     if(dist<=(radius_coins+radius_object) && flag_coin[r]==true)
         {
             score++;
-            if((score%6)==0 && score!=0)
-                num_coin *=2;
+            cout<<"Your current Score is "<<score<<endl;
+            if((score%num_coin)==0 && score!=0)
+                {
+                    num_coin +=12;
+                    level++;
+                    cout<<"Hurray , You are now one level up!! "<<endl;
+                    cout<<"Current level is "<<level<<endl;
+                }
+                if(num_coin > 499)
+                    exit_func();
             flag_coin[r]=false;
             break;
         }
